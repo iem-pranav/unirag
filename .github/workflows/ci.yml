@@ -41,4 +41,7 @@ jobs:
           POSTGRES_USER: unirag_admin
           POSTGRES_DB: unirag
           UNIRAG_RO_PASSWORD: ci_ro
+      - run: python -m unirag.load_data
+        env:
+          ADMIN_DATABASE_URL: postgresql://unirag_admin:ci_admin@localhost:5432/unirag
       - run: pytest

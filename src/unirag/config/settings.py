@@ -18,6 +18,8 @@ class Settings:
     top_k: int
     chunk_size: int
     database_url: str
+    # ! Admin URL is only for the data loader. The app itself must never use it.
+    admin_database_url: str | None
 
 
 @lru_cache
@@ -32,4 +34,5 @@ def get_settings() -> Settings:
         top_k=raw["retrieval"]["top_k"],
         chunk_size=raw["chunking"]["chunk_size"],
         database_url=os.environ["DATABASE_URL"],
+        admin_database_url=os.environ.get("ADMIN_DATABASE_URL"),
     )

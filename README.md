@@ -165,7 +165,7 @@ Each eval run is logged to **MLflow** with its config (model, chunk size, top-k,
 ## 9. Roadmap
 
 - [x] **Phase 0: Setup.** Repo, Docker Compose with Postgres + pgvector, config, CI skeleton.
-- [ ] **Phase 1: Data.** The CSVs, `schema.sql` and documents already exist in `data/`. This phase is to load them into Postgres, check them, and fix anything that is off.
+- [x] **Phase 1: Data.** The CSVs, `schema.sql` and documents already exist in `data/`. This phase is to load them into Postgres, check them, and fix anything that is off.
 - [ ] **Phase 2: Eval set v1.** 30 questions first, grow to 80+. Build the eval harness before the system.
 - [ ] **Phase 3: Unstructured path.** Ingestion, chunking, embeddings, hybrid search. Measure recall@k.
 - [ ] **Phase 4: Structured path.** Schema retriever, Text-to-SQL, SQL guard. Measure execution accuracy.

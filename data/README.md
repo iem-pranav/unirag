@@ -11,7 +11,7 @@ Everything here is **synthetic**. It describes a fictional university, the **Ara
 | `students.csv` | 240 | 20 students per branch (CE, IT, ENTC) per year, with CGPA and backlogs |
 | `courses.csv` | 120 | Course catalogue for 8 semesters |
 | `enrollments.csv` | 5,760 | Attendance, marks and grades per student per course |
-| `fee_ledger.csv` | 1,628 | Fee items, amounts, due dates and payment status |
+| `fee_ledger.csv` | 1,650 | Fee items, amounts, due dates and payment status |
 | `grants.csv` | 8 | Research and project grants |
 | `grant_deadlines.csv` | 8 | Application windows for the 2026-27 cycle |
 | `academic_calendar.csv` | 41 | Dated events of semester I 2026-27 |
