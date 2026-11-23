@@ -2,7 +2,7 @@
 import psycopg
 import pytest
 
-from unirag.db import connect
+from unirag.db import connect, connect_admin
 from unirag.load_data import drive_total_mismatches, orphan_counts, row_counts
 
 # * Row counts from data/README.md.
@@ -19,22 +19,29 @@ EXPECTED_ROWS = {
 }
 
 
+# * Data checks run as admin: row-level security hides student rows from the app user.
+@pytest.fixture
+def admin():
+    with connect_admin() as c:
+        yield c
+
+
 @pytest.fixture
 def conn():
     with connect() as c:
         yield c
 
 
-def test_row_counts(conn: psycopg.Connection) -> None:
-    assert row_counts(conn) == EXPECTED_ROWS
+def test_row_counts(admin: psycopg.Connection) -> None:
+    assert row_counts(admin) == EXPECTED_ROWS
 
 
-def test_no_orphan_rows(conn: psycopg.Connection) -> None:
-    assert not any(orphan_counts(conn).values())
+def test_no_orphan_rows(admin: psycopg.Connection) -> None:
+    assert not any(orphan_counts(admin).values())
 
 
-def test_drive_totals_match_branch_offers(conn: psycopg.Connection) -> None:
-    assert drive_total_mismatches(conn) == []
+def test_drive_totals_match_branch_offers(admin: psycopg.Connection) -> None:
+    assert drive_total_mismatches(admin) == []
 
 
 # ! The transaction is switched to READ WRITE on purpose, so only missing privileges can stop it.
@@ -49,6 +56,6 @@ def test_drive_totals_match_branch_offers(conn: psycopg.Connection) -> None:
     ],
 )
 def test_read_only_user_cannot_write(conn: psycopg.Connection, statement: str) -> None:
-    conn.execute("SET TRANSACTION READ WRITE")
-    with pytest.raises(psycopg.errors.InsufficientPrivilege):
+    with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+        conn.execute("SET TRANSACTION READ WRITE")
         conn.execute(statement)

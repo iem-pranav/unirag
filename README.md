@@ -69,9 +69,9 @@ This project is built for the "Unified Hybrid RAG for Structured and Unstructure
 | API | FastAPI + Pydantic | typed, fast, auto docs |
 | UI | Streamlit | quickest chat UI |
 | Database | PostgreSQL 16 + **pgvector** | one DB for tables and vectors, so the setup stays simple |
-| Embeddings | `bge-small-en-v1.5` (local, sentence-transformers) | free, runs on CPU, no rate limits |
-| LLM | **Groq** (primary), **Gemini** (fallback) via LiteLLM | fast and free-tier friendly; swap models with config |
-| SQL safety | `sqlglot` + read-only DB role | parse and validate every query |
+| Embeddings | `bge-small-en-v1.5` (local, fastembed / ONNX) | free, runs on CPU, no rate limits, no PyTorch |
+| LLM | **Groq** (primary), **Gemini** (fallback) via plain `httpx` on their OpenAI-compatible APIs | fast and free-tier friendly; swap models with config |
+| SQL safety | `sqlglot` + read-only DB role + row-level security | parse and validate every query; the DB enforces student scoping |
 | Reranking | small cross-encoder (optional, measured in eval) | add only if eval shows a gain |
 | Orchestration | plain Python modules | easy to read, test and explain. No heavy framework needed |
 | Tracking | MLflow | track eval runs and compare experiments |
@@ -92,8 +92,8 @@ This project is built for the "Unified Hybrid RAG for Structured and Unstructure
 
 **Schema mapping.** The LLM cannot write good SQL without understanding the tables. So we:
 - Write a short description for every table and column.
-- Embed those descriptions and retrieve only the relevant tables per question.
-- Add a few example question-to-SQL pairs per table.
+- With only 9 tables, the full schema (with comments) goes in every prompt. We add a schema retriever (embed the descriptions, retrieve only the relevant tables) only if the eval shows a need.
+- Add a few example question-to-SQL pairs.
 - For some tables (for example grant rules), also convert rows into text sentences and index them for vector search (table-to-text).
 
 **SQL safety (non-negotiable).**
@@ -101,7 +101,7 @@ This project is built for the "Unified Hybrid RAG for Structured and Unstructure
 - Only `SELECT` is allowed (checked by parsing with `sqlglot`, not by string matching).
 - Only allowlisted tables and views.
 - Forced `LIMIT` and statement timeout.
-- Student-specific queries are scoped to the asking student's ID.
+- Student-specific queries are scoped to the asking student's ID by Postgres **row-level security** on `students`, `enrollments` and `fee_ledger`, using a per-transaction `app.student_id`. A bad query still cannot read another student's rows.
 - Failed SQL gets one repair attempt, then a clean "I could not answer this" message.
 
 **Roles, not real login.** There is no password system. The UI sends a `student_id` or `guest` with each request. Student-specific questions ("my CGPA", "my fees") use that ID. Guests get document search plus public tables only (grants, calendar, placements). This keeps the project simple but still tests the same scoping logic that real auth would need. Request logs store the role and question, so we can see which questions are asked most and grow the eval set from them.
@@ -168,7 +168,7 @@ Each eval run is logged to **MLflow** with its config (model, chunk size, top-k,
 - [x] **Phase 1: Data.** The CSVs, `schema.sql` and documents already exist in `data/`. This phase is to load them into Postgres, check them, and fix anything that is off.
 - [x] **Phase 2: Eval set v1.** 30 questions first, grow to 80+. Build the eval harness before the system.
 - [x] **Phase 3: Unstructured path.** Ingestion, chunking, embeddings, hybrid search. Measure recall@k.
-- [ ] **Phase 4: Structured path.** Schema retriever, Text-to-SQL, SQL guard. Measure execution accuracy.
+- [x] **Phase 4: Structured path.** Schema retriever, Text-to-SQL, SQL guard. Measure execution accuracy.
 - [ ] **Phase 5: Router.** Baseline semantic router, then LLM router. Compare in eval.
 - [ ] **Phase 6: Joint queries and synthesis.** Sub-question splitting, dependent queries, citations.
 - [ ] **Phase 7: API and UI.** FastAPI endpoint and Streamlit chat.

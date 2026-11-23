@@ -24,6 +24,8 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://unirag_ro:ci_ro@localhost:5432/unirag
+      # * Loader, ingest and the data-check tests need admin (row-level security hides rows).
+      ADMIN_DATABASE_URL: postgresql://unirag_admin:ci_admin@localhost:5432/unirag
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -42,10 +44,6 @@ jobs:
           POSTGRES_DB: unirag
           UNIRAG_RO_PASSWORD: ci_ro
       - run: python -m unirag.load_data
-        env:
-          ADMIN_DATABASE_URL: postgresql://unirag_admin:ci_admin@localhost:5432/unirag
       # * Downloads the embedding model (~70 MB) on first run.
       - run: python -m unirag.ingest
-        env:
-          ADMIN_DATABASE_URL: postgresql://unirag_admin:ci_admin@localhost:5432/unirag
       - run: pytest

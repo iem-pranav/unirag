@@ -1,10 +1,20 @@
 # * Checks the eval set: every question is well formed, every gold_sql runs, facts match fairly.
 import psycopg
 import pytest
-from eval_set import GOLD, QUESTIONS, fact_in_answer, load_jsonl, rows_to_facts
+from eval_set import (
+    GOLD,
+    QUESTIONS,
+    fact_in_answer,
+    load_jsonl,
+    rows_match,
+    rows_to_facts,
+    run_gold,
+)
 
-from unirag.db import connect
-from unirag.load_data import DOCS, TABLES
+from unirag.db import connect, run_query
+from unirag.load_data import DOCS
+from unirag.structured.guard import PUBLIC_TABLES
+from unirag.structured.guard import STUDENT_TABLES as ALL_STUDENT_TABLES
 
 KEYS = {
     "id",
@@ -20,7 +30,7 @@ ROUTES = {"sql", "docs", "both"}
 TYPES = {"sql", "docs", "joint", "not_answerable", "guest_refusal"}
 NO_ANSWER_TYPES = {"not_answerable", "guest_refusal"}
 # ! Guests must never reach these, not even in gold answers.
-STUDENT_TABLES = {"students", "enrollments", "fee_ledger"}
+STUDENT_TABLES = ALL_STUDENT_TABLES
 
 QUESTION_LIST = load_jsonl(QUESTIONS)
 WITH_SQL = [q for q in QUESTION_LIST if q["gold_sql"]]
@@ -49,7 +59,8 @@ def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
     assert all(isinstance(f, str) and f for f in q["expected_facts"])
 
     if q["role"] != "guest":
-        found = conn.execute("SELECT 1 FROM students WHERE student_id = %s", [q["role"]]).fetchone()
+        # * Row-level security returns the row only if this student exists.
+        _, found = run_query(conn, "SELECT 1 FROM students", q["role"])
         assert found, f"unknown student {q['role']}"
 
     needs_sql = q["expected_route"] in {"sql", "both"} and q["question_type"] not in NO_ANSWER_TYPES
@@ -58,7 +69,8 @@ def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
     if q["question_type"] not in NO_ANSWER_TYPES:
         assert q["expected_sources"]
     for source in q["expected_sources"]:
-        assert source in TABLES or (DOCS / source).is_file(), f"unknown source {source}"
+        known = PUBLIC_TABLES | STUDENT_TABLES
+        assert source in known or (DOCS / source).is_file(), f"unknown source {source}"
 
     if q["role"] == "guest":
         assert not STUDENT_TABLES & set(q["expected_sources"])
@@ -66,7 +78,7 @@ def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
 
 @pytest.mark.parametrize("q", WITH_SQL, ids=lambda q: q["id"])
 def test_gold_sql_runs_and_matches_gold_file(q: dict, conn: psycopg.Connection) -> None:
-    rows = conn.execute(q["gold_sql"]).fetchall()
+    rows = run_gold(conn, q)
     assert rows, "gold_sql returned no rows"
     gold = {g["id"]: g for g in load_jsonl(GOLD)}
     assert gold[q["id"]]["facts"] == rows_to_facts(rows), "gold.jsonl is stale, run build_gold.py"
@@ -90,3 +102,27 @@ def test_gold_sql_runs_and_matches_gold_file(q: dict, conn: psycopg.Connection) 
 )
 def test_fact_in_answer(fact: str, answer: str, expected: bool) -> None:
     assert fact_in_answer(fact, answer) is expected
+
+
+TOL = 0.01
+
+
+@pytest.mark.parametrize(
+    ("gold", "got", "expected"),
+    [
+        ([["Adobe", "61.10"]], [["Adobe", "61.1"]], True),
+        ([["Adobe", "61.10"]], [["61.1", "Adobe", "drive 12"]], True),
+        ([["a", "1"], ["b", "2"]], [["b", "2"], ["a", "1"]], True),
+        ([["208"]], [["208.004"]], True),
+        ([["208"]], [["209"]], False),
+        (
+            [["Guru Nanak Jayanti", "2026-11-24"]],
+            [["Guru Nanak Jayanti (holiday)", "2026-11-24"]],
+            True,
+        ),
+        ([["a", "1"]], [["a", "1"], ["b", "2"]], False),
+        ([["x", "1"], ["x", "1"]], [["x", "1"], ["y", "1"]], False),
+    ],
+)
+def test_rows_match(gold: list, got: list, expected: bool) -> None:
+    assert rows_match(gold, got, TOL) is expected

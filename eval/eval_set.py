@@ -2,8 +2,13 @@
 import json
 import re
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
+
+import psycopg
+
+from unirag.db import run_query
+from unirag.structured.guard import guard
 
 EVAL_DIR = Path(__file__).resolve().parent
 QUESTIONS = EVAL_DIR / "questions.jsonl"
@@ -18,6 +23,12 @@ DIGIT_COMMA = re.compile(r"(?<=\d),(?=\d)")
 def load_jsonl(path: Path) -> list[dict]:
     lines = path.read_text(encoding="utf-8").splitlines()
     return [json.loads(line) for line in lines if line.strip()]
+
+
+def run_gold(conn: psycopg.Connection, q: dict) -> list[tuple]:
+    # * Gold SQL goes through the same guard and row scoping as the app, as the asking role.
+    _, rows = run_query(conn, guard(q["gold_sql"], q["role"]), q["role"])
+    return rows
 
 
 def cell_to_text(value: object) -> str:
@@ -47,3 +58,34 @@ def fact_in_answer(fact: str, answer: str) -> bool:
         # * Compare as numbers: 8.8 matches 8.80, but 15 does not match 150.
         return any(Decimal(n) == Decimal(fact) for n in NUMBER.findall(text))
     return fact in text
+
+
+def cells_equal(gold: str, got: str, tolerance: float) -> bool:
+    try:
+        return abs(Decimal(gold) - Decimal(got)) <= Decimal(str(tolerance))
+    except InvalidOperation:
+        # * Text: gold inside the cell is enough, e.g. "Guru Nanak Jayanti (holiday)".
+        return gold.strip().casefold() in got.strip().casefold()
+
+
+def take_match(items: list, predicate) -> bool:
+    # * Remove the first item that matches, so each item is used at most once.
+    for i, item in enumerate(items):
+        if predicate(item):
+            items.pop(i)
+            return True
+    return False
+
+
+def row_covers(got_row: list[str], gold_row: list[str], tolerance: float) -> bool:
+    # * Every gold cell must appear in the row. Extra columns (an id, a label) are allowed.
+    cells = list(got_row)
+    return all(take_match(cells, lambda c, g=g: cells_equal(g, c, tolerance)) for g in gold_row)
+
+
+def rows_match(gold_rows: list[list[str]], got_rows: list[list[str]], tolerance: float) -> bool:
+    # * Same number of rows, any order, each gold row covered by a different result row.
+    if len(gold_rows) != len(got_rows):
+        return False
+    rows = list(got_rows)
+    return all(take_match(rows, lambda r, g=g: row_covers(r, g, tolerance)) for g in gold_rows)

@@ -2,11 +2,12 @@
 import psycopg
 from psycopg import sql
 
-from unirag.config.settings import ROOT, get_settings
-from unirag.db import connect
+from unirag.config.settings import ROOT
+from unirag.db import connect_admin
 
 SEED = ROOT / "data" / "seed"
 DOCS = ROOT / "data" / "documents"
+SECURITY_SQL = ROOT / "src" / "unirag" / "structured" / "security.sql"
 EXPECTED_DOCS = 15
 
 # ! Parents before children: COPY and the foreign keys need this order.
@@ -60,13 +61,15 @@ WHERE s.cgpa IS NULL OR ABS(s.cgpa - calc.cgpa) > 0.005
 
 
 def load(conn: psycopg.Connection) -> None:
-    # ! No CASCADE: if a view depends on a table, fail loudly instead of dropping it silently.
+    # ! No CASCADE: if an unknown view depends on a table, fail loudly instead of dropping it.
+    conn.execute("DROP VIEW IF EXISTS student_branch_rank")
     for table in reversed(TABLES):
         conn.execute(sql.SQL("DROP TABLE IF EXISTS {}").format(sql.Identifier(table)))
     conn.execute((SEED / "schema.sql").read_text(encoding="utf-8"))
     for table in TABLES:
         copy_csv(conn, table)
     conn.execute("GRANT SELECT ON ALL TABLES IN SCHEMA public TO unirag_ro")
+    conn.execute(SECURITY_SQL.read_text(encoding="utf-8"))
 
 
 def copy_csv(conn: psycopg.Connection, table: str) -> None:
@@ -123,12 +126,12 @@ def report(conn: psycopg.Connection) -> bool:
 
 
 def main() -> None:
-    with psycopg.connect(get_settings().admin_database_url) as conn:
+    with connect_admin() as conn:
         load(conn)
     print(f"Loaded {len(TABLES)} tables from {SEED.relative_to(ROOT)}")
 
-    # * Checks run as the read-only app user, which also proves it can SELECT every table.
-    with connect() as conn:
+    # * Checks run as admin: row-level security would hide student rows from the app user.
+    with connect_admin() as conn:
         ok = report(conn)
     if not ok:
         raise SystemExit(1)

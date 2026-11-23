@@ -1,9 +1,8 @@
 # * Chunks, embeds and loads data/documents into doc_chunks. Run: python -m unirag.ingest
 from collections import Counter
 
-import psycopg
-
 from unirag.config.settings import get_settings
+from unirag.db import connect_admin
 from unirag.load_data import DOCS
 from unirag.unstructured.chunking import Chunk, chunk_document
 from unirag.unstructured.embeddings import embed, to_pgvector
@@ -37,7 +36,7 @@ def main() -> None:
     chunks = load_chunks()
     vectors = embed([c.content for c in chunks])
 
-    with psycopg.connect(get_settings().admin_database_url) as conn:
+    with connect_admin() as conn:
         # * Drop and rebuild, so running twice gives the same table.
         conn.execute("DROP TABLE IF EXISTS doc_chunks")
         # * The vector size comes from the model, so a model change in settings can't mismatch.

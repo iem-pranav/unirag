@@ -2,19 +2,18 @@
 # * Run after loading data: python eval/build_gold.py
 import json
 
-from eval_set import GOLD, QUESTIONS, cell_to_text, load_jsonl, rows_to_facts
+from eval_set import GOLD, QUESTIONS, cell_to_text, load_jsonl, rows_to_facts, run_gold
 
 from unirag.db import connect
 
 
 def main() -> None:
     gold = []
-    # TODO: send gold_sql through the SQL guard once it exists (Phase 4). Read-only user for now.
     with connect() as conn:
         for q in load_jsonl(QUESTIONS):
             if not q["gold_sql"]:
                 continue
-            rows = conn.execute(q["gold_sql"]).fetchall()
+            rows = run_gold(conn, q)
             if not rows:
                 raise SystemExit(f"{q['id']}: gold_sql returned no rows")
             gold.append(

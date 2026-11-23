@@ -1,8 +1,17 @@
 # * App settings. Change values here, not in code. Secrets go in .env.
 
+# * "Today" in the fake world. Used for deadlines and "upcoming" questions.
+today: 2026-11-23
+
 llm:
-  primary: groq/llama-3.3-70b-versatile
-  fallback: gemini/gemini-2.0-flash  # ? check this model is still served before Phase 4
+  # * Format: provider/model. Checked as served on 2026-11-23.
+  primary: groq/openai/gpt-oss-120b
+  fallback: gemini/gemini-3.8-flash
+  timeout_s: 60
+
+sql:
+  max_rows: 100       # forced LIMIT on every query
+  timeout_ms: 5000    # statement timeout per query
 
 embedding:
   model: BAAI/bge-small-en-v1.5  # fastembed serves an int8-quantized ONNX build of it
@@ -15,3 +24,8 @@ retrieval:
 chunking:
   # * Characters, not tokens: no tokenizer needed. 1000 chars is about 250 tokens, under bge's 512.
   chunk_size: 1000
+
+eval:
+  number_tolerance: 0.01  # SQL eval: numbers this close count as equal
+  # ! Groq free tier: 8000 tokens/min, and one text-to-SQL call is ~2.4k. Pause between questions.
+  pause_s: 20
