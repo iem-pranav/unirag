@@ -34,3 +34,5 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# * eval/ holds scripts, not a package, so tests import eval_set from here.
+pythonpath = ["eval"]

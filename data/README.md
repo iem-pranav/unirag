@@ -26,7 +26,7 @@ How they were made:
 
 ### Deliberate design choices (they make the joint questions work)
 - **Grant eligibility rules are only in the document** (`documents/09_research_grants_handbook.md`). **Deadlines are only in the table** (`grant_deadlines`). **Student CGPA, year, backlogs, attendance and fee status are only in the tables.** A question like "which grants can I apply for and when do they close?" needs all three.
-- The AI and Data Research Fellowship rule mentions an ISE score. That needs a join from `students` to `enrollments` to `courses`.
+- The AI and Data Research Fellowship rule needs a grade or ISE score in Machine Learning (CE) or Data Science (IT). That needs a join from `students` to `enrollments` to `courses`.
 - Overdue fees block hall tickets and grants. The rule is in the documents, the fee status is in `fee_ledger`.
 
 ## Documents (`data/documents/*.md`)

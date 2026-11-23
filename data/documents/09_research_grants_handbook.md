@@ -49,7 +49,7 @@ Sponsored by an industry partner for work in machine learning and data.
 - Eligible: **Computer Engineering and Information Technology** students only, in **year 3 or year 4**.
 - CGPA of **8.5 or above**.
 - Zero active backlogs.
-- The student must have **completed the Machine Learning course** with grade **A or above**, **or** be **currently enrolled** in Machine Learning and have an **ISE score of at least 12 out of 15** in it.
+- The student must have **completed the core course of their branch** (**Machine Learning** for CE students, **Data Science** for IT students) with grade **A or above**, **or** be **currently enrolled** in that course and have an **ISE score of at least 12 out of 15** in it.
 - Selection includes a technical interview with the sponsor.
 
 ### 5. Women in Tech Research Grant (up to Rs. 60,000)
