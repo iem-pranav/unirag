@@ -43,3 +43,21 @@ eval:
   # ! Groq free tier: 8000 tokens/min, and one text-to-SQL call is ~2.4k. Space calls out.
   pause_s: 20         # min seconds between live LLM calls in eval commands
   network_retry_s: 30 # eval: wait this long, then retry once when both providers fail
+
+api:
+  url: http://localhost:8000  # where the Streamlit UI finds the API
+
+# * Role picker in the UI. Each id must exist in students (tests/test_api.py checks this).
+demo_students:
+  - id: 23ENTC008
+    label: Final-year ENTC, CGPA 8.65, no dues
+  - id: 23ENTC005
+    label: Final-year ENTC, CGPA 8.65, overdue fees
+  - id: 23CE003
+    label: Final-year CE, one course below 75% attendance
+  - id: 23CE004
+    label: Final-year CE, one backlog
+  - id: 24IT002
+    label: Third-year IT, CGPA 8.80
+  - id: 25IT013
+    label: Second-year IT, overdue tuition and hostel fees

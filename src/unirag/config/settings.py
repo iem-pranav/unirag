@@ -32,6 +32,8 @@ class Settings:
     number_tolerance: float
     eval_pause_s: float
     eval_network_retry_s: float
+    api_url: str
+    demo_students: list[dict]
     database_url: str
     # ! Admin URL is only for the data loader. The app itself must never use it.
     admin_database_url: str | None
@@ -62,6 +64,8 @@ def get_settings() -> Settings:
         number_tolerance=raw["eval"]["number_tolerance"],
         eval_pause_s=raw["eval"]["pause_s"],
         eval_network_retry_s=raw["eval"]["network_retry_s"],
+        api_url=raw["api"]["url"],
+        demo_students=raw["demo_students"],
         database_url=os.environ["DATABASE_URL"],
         admin_database_url=os.environ.get("ADMIN_DATABASE_URL"),
     )

@@ -225,6 +225,16 @@ python eval/run_eval.py       # run the evaluation
 
 UI: `http://localhost:8501` · API docs: `http://localhost:8000/docs` · MLflow: `http://localhost:5000`
 
+**Run locally today** (API and UI are not in Docker Compose until Phase 8):
+
+```bash
+docker compose up -d                       # Postgres + pgvector only
+python -m unirag.load_data                 # tables, row-level security
+python -m unirag.ingest                    # document chunks and embeddings
+uvicorn unirag.api.app:app --port 8000     # API: POST /chat, GET /roles, docs at /docs
+streamlit run ui/app.py                    # chat UI with the role picker
+```
+
 ---
 
 ## 12. Results
