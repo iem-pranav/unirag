@@ -7,7 +7,9 @@ from pathlib import Path
 
 import psycopg
 
+from unirag.config.settings import get_settings
 from unirag.db import run_query
+from unirag.llm.client import EvalOptions, configure_eval
 from unirag.structured.guard import guard
 
 EVAL_DIR = Path(__file__).resolve().parent
@@ -25,6 +27,57 @@ DIGIT_COMMA = re.compile(r"(?<=\d),(?=\d)")
 def load_jsonl(path: Path) -> list[dict]:
     lines = path.read_text(encoding="utf-8").splitlines()
     return [json.loads(line) for line in lines if line.strip()]
+
+
+DAILY_LIMIT = (
+    "Daily limit reached. Run the same command again later; the cache keeps finished answers."
+)
+
+
+def is_daily_limit(error: str) -> bool:
+    # * The client joins the two providers' errors with " | ". Stop only when BOTH hit their
+    # * daily cap; if one still works, the run can go on.
+    parts = error.split(" | ")
+    return len(parts) >= 2 and all(says_daily_cap(part) for part in parts)
+
+
+def says_daily_cap(text: str) -> bool:
+    # * Groq: "tokens per day (TPD)". Gemini: "exceeded your current quota ... PerDay...".
+    text = text.casefold()
+    per_day = "per day" in text or "perday" in text
+    return "tokens per day" in text or ("quota" in text and per_day)
+
+
+def short(text: str, limit: int = 300) -> str:
+    # * Errors stay whole for matching; cut them only when printing.
+    return text if len(text) <= limit else text[:limit] + "..."
+
+
+def stop_on_daily_limit(errors: list[str]) -> None:
+    # ! More calls today would only fail. Stop now; a record-mode re-run resumes from the cache.
+    if any(is_daily_limit(e) for e in errors):
+        print(DAILY_LIMIT)
+        raise SystemExit(1)
+
+
+def setup_llm(args: list[str]) -> list[str]:
+    # * Eval-only LLM options: cache mode (config, or --cache MODE), call spacing, network retry.
+    # * Returns the remaining command-line arguments.
+    settings = get_settings()
+    mode = settings.llm_cache
+    if "--cache" in args:
+        i = args.index("--cache")
+        mode, args = args[i + 1], args[:i] + args[i + 2 :]
+    configure_eval(
+        EvalOptions(
+            cache=mode,
+            cache_dir=settings.llm_cache_dir,
+            min_interval_s=settings.eval_pause_s,
+            retry_wait_s=settings.eval_network_retry_s,
+        )
+    )
+    print(f"LLM cache: {mode}")
+    return args
 
 
 def run_gold(conn: psycopg.Connection, q: dict) -> list[tuple]:
@@ -91,3 +144,19 @@ def rows_match(gold_rows: list[list[str]], got_rows: list[list[str]], tolerance:
         return False
     rows = list(got_rows)
     return all(take_match(rows, lambda r, g=g: row_covers(r, g, tolerance)) for g in gold_rows)
+
+
+def data_covered(gold_rows: list[list[str]], got_rows: list[list[str]], tolerance: float) -> bool:
+    # * Joint questions: every gold value was fetched somewhere. Shape, extra rows and extra
+    # * columns do not matter; the synthesizer reasons over whatever was fetched.
+    # * Each distinct value once: a cross join repeats profile values on every row. NULLs skipped.
+    pool = [cell for row in got_rows for cell in row]
+    gold_cells = {cell for row in gold_rows for cell in row if cell != "None"}
+    return all(any(cells_equal(g, c, tolerance) for c in pool) for g in gold_cells)
+
+
+def sql_part_ok(q: dict, gold_rows: list[list[str]], got_rows: list[list[str]]) -> bool:
+    tolerance = get_settings().number_tolerance
+    if q["question_type"] == "joint":
+        return data_covered(gold_rows, got_rows, tolerance)
+    return rows_match(gold_rows, got_rows, tolerance)

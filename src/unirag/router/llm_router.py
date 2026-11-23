@@ -11,9 +11,11 @@ from unirag.router.base import ROUTES, RouteDecision, other_student_check
 # ! Runs on every question, so keep this prompt small (under ~800 tokens).
 SYSTEM = """You route questions for the help desk of a fictional university, AIT. Today is {today}. {user}
 
-Sources:
-- sql: database tables. Personal records of the asking student only (CGPA, backlogs, marks, attendance, fees). Public: course catalogue, grants with amounts and deadlines, academic calendar dates, placement numbers by year, branch and company.
-- docs: policy documents. Rules, eligibility criteria and procedures for academics, exams, admissions, fees and refunds, hostel, library, activities, research grants, scholarships, placements, campus IT.
+Where data lives:
+- sql tables, the asking student's own rows only: students (year, branch, CGPA, backlogs), enrollments (attendance, marks, grades, ISE scores), fee_ledger (fees due, paid, overdue).
+- sql tables, public: courses (catalogue), grants and grant_deadlines (amounts, opening, closing and result dates), academic_calendar (every dated event: exams, holidays, vacations, results, semester start and end), placement tables (drives, companies, packages, offers by year and branch).
+- docs: policy documents with rules, eligibility criteria and procedures for academics, exams, admissions, fees and refunds, hostel, library, activities, research grants, scholarships, placements, campus IT.
+- All dates and deadlines are in sql tables. The calendar guide and the grants handbook only explain rules, never dates.
 
 Routes:
 - sql: needs only table data.
@@ -23,6 +25,7 @@ Routes:
 
 Reply with JSON only: {{"route": "...", "sql_question": "...", "docs_question": "...", "reason": "..."}}
 sql_question and docs_question are short standalone questions for each source, "" when not used. Put the student id in a personal sql_question. reason: a few words.
+For eligibility ("can I", "am I eligible", "which can I apply for"), the sql_question asks for the student's whole relevant record by category: academic standing, attendance, fees, backlogs and profile. The rules are not known yet, so do not pick only a few fields.
 
 Examples:
 {examples}"""  # noqa: E501
@@ -37,8 +40,8 @@ FEW_SHOTS: list[tuple[str, str, dict]] = [
         "Can I get the Conference Travel Grant for my paper?",
         {
             "route": "both",
-            "sql_question": "What are the year of study and CGPA of student 24CE010, "
-            "and when does the Conference Travel Grant close?",
+            "sql_question": "What are the academic standing, attendance, fees, backlogs and "
+            "profile of student 24CE010, and when does the Conference Travel Grant close?",
             "docs_question": "Who is eligible for the Conference Travel Grant?",
             "reason": "eligibility: record + rule",
         },
@@ -84,7 +87,7 @@ def build_messages(question: str, role: str) -> list[dict]:
     return [{"role": "system", "content": system}, {"role": "user", "content": question}]
 
 
-def parse(text: str, question: str, tokens: int) -> RouteDecision:
+def parse(text: str, question: str, tokens: int, latency_s: float = 0.0) -> RouteDecision:
     # * Raises ValueError on anything that is not a usable decision.
     match = JSON_BLOCK.search(text)
     if not match:
@@ -101,6 +104,7 @@ def parse(text: str, question: str, tokens: int) -> RouteDecision:
         docs_question=(str(data.get("docs_question") or "") or question) if uses_docs else "",
         reason=str(data.get("reason") or ""),
         tokens=tokens,
+        latency_s=latency_s,
     )
 
 
@@ -108,16 +112,17 @@ def route_llm(question: str, role: str) -> RouteDecision:
     if blocked := other_student_check(question, role):
         return blocked
     messages = build_messages(question, role)
-    tokens = 0
+    tokens, latency, infra_error = 0, 0.0, False
     for _ in range(2):
         try:
             reply = complete(messages, json_mode=True)
         except httpx.HTTPError as e:
-            reason = f"LLM unavailable: {type(e).__name__}"
+            reason, infra_error = f"LLM unavailable: {e}", True
             break
         tokens += reply.prompt_tokens + reply.completion_tokens
+        latency += reply.latency_s
         try:
-            return parse(reply.text, question, tokens)
+            return parse(reply.text, question, tokens, latency)
         except ValueError as e:  # json.JSONDecodeError is a ValueError too
             reason = f"bad router reply twice: {e}"
             messages += [
@@ -125,4 +130,4 @@ def route_llm(question: str, role: str) -> RouteDecision:
                 {"role": "user", "content": RETRY},
             ]
     # ? Fallback: try both sources with the original question. Guard and RLS still apply.
-    return RouteDecision("both", question, question, reason=reason, tokens=tokens)
+    return RouteDecision("both", question, question, reason, tokens, latency, infra_error)

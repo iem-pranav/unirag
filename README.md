@@ -55,7 +55,7 @@ This project is built for the "Unified Hybrid RAG for Structured and Unstructure
 2. **Router** returns a structured decision: `{route: sql | docs | both, sql_question, docs_question}`.
 3. **Structured path:** retrieve relevant table schemas, generate SQL, pass it through the **SQL guard**, run it on Postgres.
 4. **Unstructured path:** rewrite the query (HyDE), run hybrid search on pgvector, rerank, keep top-k chunks.
-5. **Both:** run both paths. If one depends on the other (for example, the student's GPA is needed before checking grant rules), run SQL first and pass the result into the document query.
+5. **Both:** run both paths independently: SQL with the router's `sql_question`, document search with its `docs_question` plus the original question (merged, duplicates removed). The synthesizer does the reasoning, for example checking the student's CGPA against the grant rules. If one path fails, the answer comes from the other and says what is missing.
 6. **Synthesizer** gets the SQL rows and the text chunks, then writes the final answer with citations.
 7. Every step is logged with timing, tokens and route, so we can debug and evaluate.
 
@@ -246,6 +246,7 @@ UI: `http://localhost:8501` · API docs: `http://localhost:8000/docs` · MLflow:
 - Text-to-SQL accuracy depends on schema size; very large schemas would need more work.
 - Not a production system: no real login (only a role picker) and no isolation beyond student-ID scoping.
 - The placement tables are random variations of the shape of real reports. They are not real statistics.
+- Questions about AIT that fall outside the data and documents, like who the principal is, get a polite refusal, not a "not found".
 
 ---
 

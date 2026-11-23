@@ -8,6 +8,10 @@ llm:
   primary: groq/openai/gpt-oss-120b
   fallback: gemini/gemini-3.8-flash
   timeout_s: 60
+  # * Eval-only LLM cache. record: reuse cached replies, call + store on a miss (resumable).
+  # * replay: cached replies only, a miss fails. off: no cache.
+  cache: "off"  # ! quoted: bare off is a YAML boolean
+  cache_dir: .cache/llm
 
 router:
   # * llm or semantic. Phase 5 eval (70 questions): llm 89% (94% without a network blip),
@@ -25,6 +29,10 @@ retrieval:
   top_k: 5
   candidate_pool: 20  # how many chunks each of vector and keyword search hand to the fusion
   rrf_k: 60           # standard reciprocal rank fusion constant
+  max_context_chunks: 8  # cap on merged chunks given to the synthesizer
+
+synthesis:
+  max_rows: 20  # SQL rows shown to the synthesizer
 
 chunking:
   # * Characters, not tokens: no tokenizer needed. 1000 chars is about 250 tokens, under bge's 512.
@@ -32,5 +40,6 @@ chunking:
 
 eval:
   number_tolerance: 0.01  # SQL eval: numbers this close count as equal
-  # ! Groq free tier: 8000 tokens/min, and one text-to-SQL call is ~2.4k. Pause between questions.
-  pause_s: 20
+  # ! Groq free tier: 8000 tokens/min, and one text-to-SQL call is ~2.4k. Space calls out.
+  pause_s: 20         # min seconds between live LLM calls in eval commands
+  network_retry_s: 30 # eval: wait this long, then retry once when both providers fail

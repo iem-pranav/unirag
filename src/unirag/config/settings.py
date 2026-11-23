@@ -17,6 +17,8 @@ class Settings:
     llm_primary: str
     llm_fallback: str
     llm_timeout_s: float
+    llm_cache: str
+    llm_cache_dir: Path
     router_type: str
     sql_max_rows: int
     sql_timeout_ms: int
@@ -24,9 +26,12 @@ class Settings:
     top_k: int
     candidate_pool: int
     rrf_k: int
+    max_context_chunks: int
+    synthesis_max_rows: int
     chunk_size: int
     number_tolerance: float
     eval_pause_s: float
+    eval_network_retry_s: float
     database_url: str
     # ! Admin URL is only for the data loader. The app itself must never use it.
     admin_database_url: str | None
@@ -42,6 +47,8 @@ def get_settings() -> Settings:
         llm_primary=raw["llm"]["primary"],
         llm_fallback=raw["llm"]["fallback"],
         llm_timeout_s=raw["llm"]["timeout_s"],
+        llm_cache=raw["llm"]["cache"],
+        llm_cache_dir=ROOT / raw["llm"]["cache_dir"],
         router_type=raw["router"]["type"],
         sql_max_rows=raw["sql"]["max_rows"],
         sql_timeout_ms=raw["sql"]["timeout_ms"],
@@ -49,9 +56,12 @@ def get_settings() -> Settings:
         top_k=raw["retrieval"]["top_k"],
         candidate_pool=raw["retrieval"]["candidate_pool"],
         rrf_k=raw["retrieval"]["rrf_k"],
+        max_context_chunks=raw["retrieval"]["max_context_chunks"],
+        synthesis_max_rows=raw["synthesis"]["max_rows"],
         chunk_size=raw["chunking"]["chunk_size"],
         number_tolerance=raw["eval"]["number_tolerance"],
         eval_pause_s=raw["eval"]["pause_s"],
+        eval_network_retry_s=raw["eval"]["network_retry_s"],
         database_url=os.environ["DATABASE_URL"],
         admin_database_url=os.environ.get("ADMIN_DATABASE_URL"),
     )

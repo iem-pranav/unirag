@@ -17,6 +17,9 @@ class RouteDecision:
     docs_question: str = ""
     reason: str = ""
     tokens: int = 0
+    latency_s: float = 0.0  # LLM time only, without any eval pacing
+    # * True when no LLM could be reached (network, outage). Evals count this apart.
+    infra_error: bool = False
 
 
 def other_student_check(question: str, role: str) -> RouteDecision | None:

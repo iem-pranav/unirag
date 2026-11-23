@@ -101,6 +101,8 @@ class SqlResult:
     error: str | None = None
     attempts: int = 0
     llm_calls: list[LLMResult] = field(default_factory=list)
+    # * True when no LLM could be reached. Evals count this apart.
+    infra_error: bool = False
 
 
 def schema_for(role: str) -> str:
@@ -146,7 +148,7 @@ def answer_sql(conn: psycopg.Connection, question: str, role: str) -> SqlResult:
         try:
             reply = complete(messages)
         except httpx.HTTPError as e:
-            result.error = f"LLM unavailable: {e}"
+            result.error, result.infra_error = f"LLM unavailable: {e}", True
             return result
         result.llm_calls.append(reply)
 

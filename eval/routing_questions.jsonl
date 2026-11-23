@@ -38,3 +38,13 @@
 {"id": "r38", "question": "what's the weather tomorrow", "role": "guest", "expected_route": "none"}
 {"id": "r39", "question": "who won the cricket match yesterday", "role": "guest", "expected_route": "none"}
 {"id": "r40", "question": "list all students with cgpa above 9", "role": "23ENTC008", "expected_route": "none"}
+{"id": "r41", "question": "is there a holiday on christmas day", "role": "guest", "expected_route": "sql"}
+{"id": "r42", "question": "last date to apply for the student innovation project grant?", "role": "guest", "expected_route": "sql"}
+{"id": "r43", "question": "when are the SE practical and oral exams happening", "role": "guest", "expected_route": "sql"}
+{"id": "r44", "question": "when does my end sem exam start?", "role": "24CE009", "expected_route": "sql"}
+{"id": "r45", "question": "when do applications open for the summer research stipend", "role": "guest", "expected_route": "sql"}
+{"id": "r46", "question": "is the winter vacation in december this year?", "role": "guest", "expected_route": "sql"}
+{"id": "r47", "question": "what date is the parent meet", "role": "guest", "expected_route": "sql"}
+{"id": "r48", "question": "how do i read the year codes like SE and TE in the calendar?", "role": "guest", "expected_route": "docs"}
+{"id": "r49", "question": "how many days before travel must i apply for the conference travel grant", "role": "guest", "expected_route": "docs"}
+{"id": "r50", "question": "is it too late for me to apply for the women in tech grant?", "role": "23ENTC012", "expected_route": "both"}

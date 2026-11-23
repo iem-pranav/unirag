@@ -1,13 +1,13 @@
-# * Routing eval: score the semantic and LLM routers on all 70 questions (30 main + 40 routing).
+# * Routing eval: score the semantic and LLM routers on the main and routing-only questions.
 # * The LLM router makes real calls, so it is not part of pytest.
-# * Run: python eval/routing_eval.py [semantic|llm]   (no argument = both)
+# * Run: python eval/routing_eval.py [semantic|llm] [ids...] [--cache off|record|replay]
+# * No router named = both. No ids = all questions.
 import sys
 import time
 from collections import Counter
 
-from eval_set import QUESTIONS, ROUTING_QUESTIONS, load_jsonl
+from eval_set import QUESTIONS, ROUTING_QUESTIONS, load_jsonl, setup_llm, short, stop_on_daily_limit
 
-from unirag.config.settings import get_settings
 from unirag.router.llm_router import route_llm
 from unirag.router.semantic import route_semantic
 
@@ -21,53 +21,61 @@ def pct(hits: int, total: int) -> str:
 
 def evaluate(name: str, questions: list[dict]) -> None:
     router = ROUTERS[name]
-    # * Only the LLM router needs pacing for the Groq free tier.
-    pause = get_settings().eval_pause_s if name == "llm" else 0
     if name == "semantic":
         router("warm up the embedding model", "guest")
 
     results = []
-    for i, q in enumerate(questions):
-        if pause and i:
-            time.sleep(pause)
+    for q in questions:
         start = time.perf_counter()
         decision = router(q["question"], q["role"])
-        results.append((q, decision, time.perf_counter() - start))
+        stop_on_daily_limit([decision.reason] if decision.infra_error else [])
+        # * LLM router reports its own LLM time, so eval pacing is not counted as latency.
+        secs = decision.latency_s if name == "llm" else time.perf_counter() - start
+        results.append((q, decision, secs))
 
-    ok = [d.route == q["expected_route"] for q, d, _ in results]
-    guest = [o for o, (q, _, _) in zip(ok, results, strict=True) if q["role"] == "guest"]
-    student = [o for o, (q, _, _) in zip(ok, results, strict=True) if q["role"] != "guest"]
-    secs = [s for *_, s in results]
-    tokens = [d.tokens for _, d, _ in results]
+    # ! Infra errors (no LLM reachable) are counted apart, not as wrong routes.
+    infra = [(q, d) for q, d, _ in results if d.infra_error]
+    scored = [(q, d, s) for q, d, s in results if not d.infra_error]
+    ok = [d.route == q["expected_route"] for q, d, _ in scored]
+    guest = [o for o, (q, _, _) in zip(ok, scored, strict=True) if q["role"] == "guest"]
+    student = [o for o, (q, _, _) in zip(ok, scored, strict=True) if q["role"] != "guest"]
+    secs = [s for *_, s in scored] or [0.0]
+    tokens = [d.tokens for _, d, _ in scored] or [0]
 
     print(f"\n===== {name} router =====")
     print(f"accuracy  {pct(sum(ok), len(ok))}")
     print(f"guest     {pct(sum(guest), len(guest))}")
     print(f"student   {pct(sum(student), len(student))}")
+    print(f"infra     {len(infra)} (not scored)")
     print(f"latency   avg {sum(secs) / len(secs):.2f}s, max {max(secs):.2f}s")
     print(f"tokens    avg {sum(tokens) / len(tokens):.0f} per question")
 
-    counts = Counter((q["expected_route"], d.route) for q, d, _ in results)
+    counts = Counter((q["expected_route"], d.route) for q, d, _ in scored)
     print("\nconfusion (rows = expected, columns = got)")
     print(f"{'':<8}" + "".join(f"{r:>7}" for r in ORDER))
     for expected in ORDER:
         print(f"{expected:<8}" + "".join(f"{counts[(expected, got)]:>7}" for got in ORDER))
 
-    wrong = [(q, d) for (q, d, _), o in zip(results, ok, strict=True) if not o]
+    wrong = [(q, d) for (q, d, _), o in zip(scored, ok, strict=True) if not o]
     print(f"\nwrong routes ({len(wrong)}):")
     for q, d in wrong:
         print(f"  {q['id']:<4} [{q['role']}] {q['question']}")
         print(f"       expected {q['expected_route']}, got {d.route}: {d.reason}")
+    for q, d in infra:
+        print(f"  INFRA {q['id']}: {short(d.reason)}")
 
 
-def main(names: list[str]) -> None:
+def main(args: list[str]) -> None:
+    names = [a for a in args if a in ROUTERS] or list(ROUTERS)
+    ids = {a for a in args if a not in ROUTERS}
     keys = ("id", "question", "role", "expected_route")
     questions = [{k: q[k] for k in keys} for q in load_jsonl(QUESTIONS)]
     questions += load_jsonl(ROUTING_QUESTIONS)
+    questions = [q for q in questions if not ids or q["id"] in ids]
     print(f"{len(questions)} questions")
     for name in names:
         evaluate(name, questions)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:] or list(ROUTERS))
+    main(setup_llm(sys.argv[1:]))

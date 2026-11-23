@@ -81,6 +81,13 @@ def check_tables(tree: exp.Expression, role: str) -> None:
             raise GuardError(f"Table not allowed for role {role}: {table.name}")
 
 
+def tables_in(query: str) -> list[str]:
+    # * Real tables a (guarded) query reads, for citations. CTE names are left out.
+    tree = sqlglot.parse_one(query, read="postgres")
+    ctes = {cte.alias_or_name for cte in tree.find_all(exp.CTE)}
+    return sorted({t.name for t in tree.find_all(exp.Table)} - ctes)
+
+
 def add_limit(tree: exp.Query, max_rows: int) -> exp.Query:
     # * Keep a smaller LIMIT the query already has; otherwise force max_rows.
     limit = tree.args.get("limit")

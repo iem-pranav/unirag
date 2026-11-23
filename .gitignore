@@ -16,3 +16,6 @@ pgdata/
 .DS_Store
 .idea/
 .vscode/
+
+# LLM record/replay cache (eval only)
+.cache/
