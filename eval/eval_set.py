@@ -13,6 +13,8 @@ from unirag.structured.guard import guard
 EVAL_DIR = Path(__file__).resolve().parent
 QUESTIONS = EVAL_DIR / "questions.jsonl"
 GOLD = EVAL_DIR / "gold.jsonl"
+# * Routing-only questions: id, question, role, expected_route.
+ROUTING_QUESTIONS = EVAL_DIR / "routing_questions.jsonl"
 
 NUMBER = re.compile(r"\d+(?:\.\d+)?")
 ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")

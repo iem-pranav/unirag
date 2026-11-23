@@ -1,0 +1,40 @@
+{"id": "r01", "question": "what's my fee balance?", "role": "24IT002", "expected_route": "sql"}
+{"id": "r02", "question": "how many backlogs do i have rn", "role": "23CE011", "expected_route": "sql"}
+{"id": "r03", "question": "show me my marks from last sem", "role": "25CE004", "expected_route": "sql"}
+{"id": "r04", "question": "which company hired the most IT students in 2023-24", "role": "guest", "expected_route": "sql"}
+{"id": "r05", "question": "avg package for ENTC in 2020-21?", "role": "guest", "expected_route": "sql"}
+{"id": "r06", "question": "when is the diwali break this year", "role": "guest", "expected_route": "sql"}
+{"id": "r07", "question": "my attendance in machine learning so far?", "role": "24CE009", "expected_route": "sql"}
+{"id": "r08", "question": "on what date is the ESE result declared?", "role": "guest", "expected_route": "sql"}
+{"id": "r09", "question": "list all the grants with their max amount", "role": "guest", "expected_route": "sql"}
+{"id": "r10", "question": "did i pay my hostel fee or not", "role": "23IT016", "expected_route": "sql"}
+{"id": "r11", "question": "how many companies came for placements in 2025-26", "role": "guest", "expected_route": "sql"}
+{"id": "r12", "question": "can I skip the exam if I'm ill?", "role": "guest", "expected_route": "docs"}
+{"id": "r13", "question": "is ragging punishable here", "role": "guest", "expected_route": "docs"}
+{"id": "r14", "question": "how do i use the library e-journals from home", "role": "guest", "expected_route": "docs"}
+{"id": "r15", "question": "what documents do i need to bring for admission", "role": "guest", "expected_route": "docs"}
+{"id": "r16", "question": "how is CGPA calculated", "role": "23ENTC008", "expected_route": "docs"}
+{"id": "r17", "question": "can i keep an induction cooker in my hostel room", "role": "guest", "expected_route": "docs"}
+{"id": "r18", "question": "what happens if i'm caught with my phone in the exam hall", "role": "guest", "expected_route": "docs"}
+{"id": "r19", "question": "how does the one offer rule work in placements", "role": "24ENTC015", "expected_route": "docs"}
+{"id": "r20", "question": "whats the refund if I cancel before classes start", "role": "guest", "expected_route": "docs"}
+{"id": "r21", "question": "how many activity points do we need", "role": "guest", "expected_route": "docs"}
+{"id": "r22", "question": "how do i connect to campus wifi", "role": "guest", "expected_route": "docs"}
+{"id": "r23", "question": "am i allowed to sit for placements with my backlogs?", "role": "23CE004", "expected_route": "both"}
+{"id": "r24", "question": "can i apply for the seed grant? and when does it close", "role": "24IT002", "expected_route": "both"}
+{"id": "r25", "question": "will my unpaid fees stop me from writing exams", "role": "25IT013", "expected_route": "both"}
+{"id": "r26", "question": "which scholarships can i get with my cgpa", "role": "23ENTC012", "expected_route": "both"}
+{"id": "r27", "question": "my attendance is low in one subject, will i be detained?", "role": "24CE009", "expected_route": "both"}
+{"id": "r28", "question": "what class of degree am i on track for", "role": "23CE001", "expected_route": "both"}
+{"id": "r29", "question": "do i qualify for the women in tech grant", "role": "23IT003", "expected_route": "both"}
+{"id": "r30", "question": "what grants can a 3rd year IT student with 8.6 cgpa apply for, and by when", "role": "guest", "expected_route": "both"}
+{"id": "r31", "question": "could i get the summer research internship stipend", "role": "25ENTC002", "expected_route": "both"}
+{"id": "r32", "question": "my fees are overdue, can i still get a research grant?", "role": "23ENTC005", "expected_route": "both"}
+{"id": "r33", "question": "what's my cgpa", "role": "guest", "expected_route": "none"}
+{"id": "r34", "question": "show the fee status of 24IT002", "role": "guest", "expected_route": "none"}
+{"id": "r35", "question": "what is 23CE020's attendance", "role": "24IT002", "expected_route": "none"}
+{"id": "r36", "question": "how many backlogs does Aarav Kale have", "role": "guest", "expected_route": "none"}
+{"id": "r37", "question": "write me a poem about exams", "role": "23CE001", "expected_route": "none"}
+{"id": "r38", "question": "what's the weather tomorrow", "role": "guest", "expected_route": "none"}
+{"id": "r39", "question": "who won the cricket match yesterday", "role": "guest", "expected_route": "none"}
+{"id": "r40", "question": "list all students with cgpa above 9", "role": "23ENTC008", "expected_route": "none"}

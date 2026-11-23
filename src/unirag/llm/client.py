@@ -28,25 +28,29 @@ class LLMResult:
     fallback_reason: str | None = None
 
 
-def complete(messages: list[dict]) -> LLMResult:
+def complete(messages: list[dict], json_mode: bool = False) -> LLMResult:
+    # * json_mode asks the provider for a JSON object reply (both support it).
     settings = get_settings()
     try:
-        return _call(settings.llm_primary, messages)
+        return _call(settings.llm_primary, messages, json_mode)
     # * Errors, timeouts and rate limits (429) all fall back. A bad reply shape too.
     except (httpx.HTTPError, KeyError, IndexError) as e:
         reason = f"{type(e).__name__}: {e}".splitlines()[0][:200]
-        return replace(_call(settings.llm_fallback, messages), fallback_reason=reason)
+        return replace(_call(settings.llm_fallback, messages, json_mode), fallback_reason=reason)
 
 
-def _call(name: str, messages: list[dict]) -> LLMResult:
+def _call(name: str, messages: list[dict], json_mode: bool = False) -> LLMResult:
     # * name is provider/model, e.g. groq/openai/gpt-oss-120b
     provider, model = name.split("/", 1)
     url, key_env = PROVIDERS[provider]
+    payload: dict = {"model": model, "messages": messages, "temperature": 0}
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
     start = time.perf_counter()
     response = httpx.post(
         url,
         headers={"Authorization": f"Bearer {os.environ[key_env]}"},
-        json={"model": model, "messages": messages, "temperature": 0},
+        json=payload,
         timeout=get_settings().llm_timeout_s,
     )
     response.raise_for_status()

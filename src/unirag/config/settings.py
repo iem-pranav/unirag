@@ -17,6 +17,7 @@ class Settings:
     llm_primary: str
     llm_fallback: str
     llm_timeout_s: float
+    router_type: str
     sql_max_rows: int
     sql_timeout_ms: int
     embedding_model: str
@@ -41,6 +42,7 @@ def get_settings() -> Settings:
         llm_primary=raw["llm"]["primary"],
         llm_fallback=raw["llm"]["fallback"],
         llm_timeout_s=raw["llm"]["timeout_s"],
+        router_type=raw["router"]["type"],
         sql_max_rows=raw["sql"]["max_rows"],
         sql_timeout_ms=raw["sql"]["timeout_ms"],
         embedding_model=raw["embedding"]["model"],

@@ -4,6 +4,7 @@ import pytest
 from eval_set import (
     GOLD,
     QUESTIONS,
+    ROUTING_QUESTIONS,
     fact_in_answer,
     load_jsonl,
     rows_match,
@@ -26,13 +27,14 @@ KEYS = {
     "expected_facts",
     "expected_sources",
 }
-ROUTES = {"sql", "docs", "both"}
+ROUTES = {"sql", "docs", "both", "none"}
 TYPES = {"sql", "docs", "joint", "not_answerable", "guest_refusal"}
 NO_ANSWER_TYPES = {"not_answerable", "guest_refusal"}
 # ! Guests must never reach these, not even in gold answers.
 STUDENT_TABLES = ALL_STUDENT_TABLES
 
 QUESTION_LIST = load_jsonl(QUESTIONS)
+ROUTING_LIST = load_jsonl(ROUTING_QUESTIONS)
 WITH_SQL = [q for q in QUESTION_LIST if q["gold_sql"]]
 
 
@@ -43,7 +45,7 @@ def conn():
 
 
 def test_ids_are_unique() -> None:
-    ids = [q["id"] for q in QUESTION_LIST]
+    ids = [q["id"] for q in QUESTION_LIST + ROUTING_LIST]
     assert len(ids) == len(set(ids))
 
 
@@ -63,6 +65,9 @@ def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
         _, found = run_query(conn, "SELECT 1 FROM students", q["role"])
         assert found, f"unknown student {q['role']}"
 
+    # * Guests asking for personal data must be routed to "none".
+    if q["question_type"] == "guest_refusal":
+        assert q["expected_route"] == "none"
     needs_sql = q["expected_route"] in {"sql", "both"} and q["question_type"] not in NO_ANSWER_TYPES
     assert bool(q["gold_sql"]) == needs_sql
 
@@ -74,6 +79,15 @@ def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
 
     if q["role"] == "guest":
         assert not STUDENT_TABLES & set(q["expected_sources"])
+
+
+@pytest.mark.parametrize("q", ROUTING_LIST, ids=lambda q: q["id"])
+def test_routing_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
+    assert set(q) == {"id", "question", "role", "expected_route"}
+    assert q["question"].strip() and q["expected_route"] in ROUTES
+    if q["role"] != "guest":
+        _, found = run_query(conn, "SELECT 1 FROM students", q["role"])
+        assert found, f"unknown student {q['role']}"
 
 
 @pytest.mark.parametrize("q", WITH_SQL, ids=lambda q: q["id"])

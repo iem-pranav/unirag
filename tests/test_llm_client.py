@@ -13,7 +13,7 @@ RATE_LIMITED = httpx.HTTPStatusError(
 
 
 def fake_call(fail_primary: Exception | None):
-    def _call(name: str, messages: list[dict]) -> LLMResult:
+    def _call(name: str, messages: list[dict], json_mode: bool = False) -> LLMResult:
         if name.startswith("groq") and fail_primary:
             raise fail_primary
         return LLMResult("SELECT 1", name, 0.1, 10, 2)

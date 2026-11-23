@@ -25,6 +25,6 @@
 {"id": "n01", "question": "How many students were placed in 2024-25?", "role": "guest", "expected_route": "sql", "question_type": "not_answerable", "gold_sql": null, "expected_facts": [], "expected_sources": []}
 {"id": "n02", "question": "Who is the current principal of AIT?", "role": "guest", "expected_route": "docs", "question_type": "not_answerable", "gold_sql": null, "expected_facts": [], "expected_sources": []}
 {"id": "n03", "question": "What is on the hostel mess menu this week?", "role": "guest", "expected_route": "docs", "question_type": "not_answerable", "gold_sql": null, "expected_facts": [], "expected_sources": []}
-{"id": "g01", "question": "What is the CGPA of student 23CE001?", "role": "guest", "expected_route": "sql", "question_type": "guest_refusal", "gold_sql": null, "expected_facts": [], "expected_sources": []}
-{"id": "g02", "question": "List all students who have overdue fees.", "role": "guest", "expected_route": "sql", "question_type": "guest_refusal", "gold_sql": null, "expected_facts": [], "expected_sources": []}
-{"id": "g03", "question": "Show me the attendance of third-year IT students.", "role": "guest", "expected_route": "sql", "question_type": "guest_refusal", "gold_sql": null, "expected_facts": [], "expected_sources": []}
+{"id": "g01", "question": "What is the CGPA of student 23CE001?", "role": "guest", "expected_route": "none", "question_type": "guest_refusal", "gold_sql": null, "expected_facts": [], "expected_sources": []}
+{"id": "g02", "question": "List all students who have overdue fees.", "role": "guest", "expected_route": "none", "question_type": "guest_refusal", "gold_sql": null, "expected_facts": [], "expected_sources": []}
+{"id": "g03", "question": "Show me the attendance of third-year IT students.", "role": "guest", "expected_route": "none", "question_type": "guest_refusal", "gold_sql": null, "expected_facts": [], "expected_sources": []}

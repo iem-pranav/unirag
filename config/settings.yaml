@@ -9,6 +9,11 @@ llm:
   fallback: gemini/gemini-3.8-flash
   timeout_s: 60
 
+router:
+  # * llm or semantic. Phase 5 eval (70 questions): llm 89% (94% without a network blip),
+  # * semantic 60%. llm also writes the sub-questions Phase 6 needs. Cost: ~700 tokens, ~1-2 s.
+  type: llm
+
 sql:
   max_rows: 100       # forced LIMIT on every query
   timeout_ms: 5000    # statement timeout per query

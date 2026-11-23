@@ -1,5 +1,6 @@
 # * SQL execution accuracy: run text-to-SQL on every gold_sql question, compare rows with gold.
 # * Calls the real LLM, so it is not part of pytest. Run: python eval/sql_eval.py
+import sys
 import time
 from collections import defaultdict
 
@@ -10,10 +11,12 @@ from unirag.db import connect
 from unirag.structured.text_to_sql import answer_sql
 
 
-def main() -> None:
+def main(only: set[str]) -> None:
     tolerance = get_settings().number_tolerance
     gold = {g["id"]: g for g in load_jsonl(GOLD)}
     questions = [q for q in load_jsonl(QUESTIONS) if q["gold_sql"]]
+    # * Optional ids on the command line run just those, e.g. python eval/sql_eval.py s06
+    questions = [q for q in questions if not only or q["id"] in only]
     by_type: dict[str, list[bool]] = defaultdict(list)
     failures = []
 
@@ -54,4 +57,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(set(sys.argv[1:]))

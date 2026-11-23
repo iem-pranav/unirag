@@ -101,6 +101,7 @@ CREATE TABLE academic_calendar (
     applies_to     TEXT NOT NULL
 );
 COMMENT ON TABLE academic_calendar IS 'Dated events of semester I 2026-27: exams, holidays, result dates.';
+COMMENT ON COLUMN academic_calendar.event IS 'Event name. The exams themselves: end-semester exam rows contain "(ESE)", in-semester exam rows contain "(ISE)". Rows like "ESE answer-book assessment", "Open house for ISE answer books" or "ESE result declaration" are related activities, not exams.';
 COMMENT ON COLUMN academic_calendar.applies_to IS 'Comma-separated year groups: FE, SE, TE, BE, PG, STAFF or ALL.';
 
 CREATE TABLE placement_drives (

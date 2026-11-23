@@ -168,9 +168,10 @@ Each eval run is logged to **MLflow** with its config (model, chunk size, top-k,
 - [x] **Phase 1: Data.** The CSVs, `schema.sql` and documents already exist in `data/`. This phase is to load them into Postgres, check them, and fix anything that is off.
 - [x] **Phase 2: Eval set v1.** 30 questions first, grow to 80+. Build the eval harness before the system.
 - [x] **Phase 3: Unstructured path.** Ingestion, chunking, embeddings, hybrid search. Measure recall@k.
-- [x] **Phase 4: Structured path.** Schema retriever, Text-to-SQL, SQL guard. Measure execution accuracy.
-- [ ] **Phase 5: Router.** Baseline semantic router, then LLM router. Compare in eval.
+- [x] **Phase 4: Structured path.** Text-to-SQL, SQL guard. Measure execution accuracy.
+- [x] **Phase 5: Router.** Baseline semantic router, then LLM router. Compare in eval.
 - [ ] **Phase 6: Joint queries and synthesis.** Sub-question splitting, dependent queries, citations.
+  - Redefine joint gold as the data to fetch (profile and deadlines), and score the final answer on facts.
 - [ ] **Phase 7: API and UI.** FastAPI endpoint and Streamlit chat.
 - [ ] **Phase 8: MLOps polish.** MLflow tracking, CI eval gate, logging, README results table.
 - [ ] **Stretch:** Self-RAG style answer checking, Graph RAG for linked entities, MCP connector, local Ollama fallback.
