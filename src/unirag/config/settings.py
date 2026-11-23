@@ -16,6 +16,8 @@ class Settings:
     llm_fallback: str
     embedding_model: str
     top_k: int
+    candidate_pool: int
+    rrf_k: int
     chunk_size: int
     database_url: str
     # ! Admin URL is only for the data loader. The app itself must never use it.
@@ -32,6 +34,8 @@ def get_settings() -> Settings:
         llm_fallback=raw["llm"]["fallback"],
         embedding_model=raw["embedding"]["model"],
         top_k=raw["retrieval"]["top_k"],
+        candidate_pool=raw["retrieval"]["candidate_pool"],
+        rrf_k=raw["retrieval"]["rrf_k"],
         chunk_size=raw["chunking"]["chunk_size"],
         database_url=os.environ["DATABASE_URL"],
         admin_database_url=os.environ.get("ADMIN_DATABASE_URL"),

@@ -39,8 +39,11 @@ def test_ids_are_unique() -> None:
 
 @pytest.mark.parametrize("q", QUESTION_LIST, ids=lambda q: q["id"])
 def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
-    assert set(q) == KEYS
+    assert set(q) - {"retrieval_facts"} == KEYS
     assert q["question"].strip()
+    if "retrieval_facts" in q:
+        assert q["expected_route"] in {"docs", "both"}
+        assert q["retrieval_facts"] and all(isinstance(f, str) and f for f in q["retrieval_facts"])
     assert q["expected_route"] in ROUTES
     assert q["question_type"] in TYPES
     assert all(isinstance(f, str) and f for f in q["expected_facts"])

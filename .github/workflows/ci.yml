@@ -44,4 +44,8 @@ jobs:
       - run: python -m unirag.load_data
         env:
           ADMIN_DATABASE_URL: postgresql://unirag_admin:ci_admin@localhost:5432/unirag
+      # * Downloads the embedding model (~70 MB) on first run.
+      - run: python -m unirag.ingest
+        env:
+          ADMIN_DATABASE_URL: postgresql://unirag_admin:ci_admin@localhost:5432/unirag
       - run: pytest
