@@ -1,0 +1,121 @@
+course_code,title,branch,semester,credits,course_type
+COM101,Engineering Mathematics I,COMMON,1,4,theory
+COM102,Engineering Physics,COMMON,1,4,theory
+COM103,Basic Electrical and Electronics,COMMON,1,4,theory
+COM104,Programming Fundamentals,COMMON,1,4,theory
+COM105,Physics Lab,COMMON,1,2,lab
+COM106,Programming Lab,COMMON,1,2,lab
+COM107,Engineering Mathematics II,COMMON,2,4,theory
+COM108,Engineering Chemistry,COMMON,2,4,theory
+COM109,Engineering Mechanics,COMMON,2,4,theory
+COM110,Communication Skills,COMMON,2,4,theory
+COM111,Chemistry Lab,COMMON,2,2,lab
+COM112,Workshop Practice,COMMON,2,2,lab
+CE113,Discrete Mathematics,CE,3,4,theory
+CE114,Data Structures,CE,3,4,theory
+CE115,Computer Organization,CE,3,4,theory
+CE116,Object Oriented Programming,CE,3,4,theory
+CE117,Data Structures Lab,CE,3,2,lab
+CE118,OOP Lab,CE,3,2,lab
+CE119,Database Management Systems,CE,4,4,theory
+CE120,Operating Systems,CE,4,4,theory
+CE121,Design and Analysis of Algorithms,CE,4,4,theory
+CE122,Microprocessors,CE,4,4,theory
+CE123,DBMS Lab,CE,4,2,lab
+CE124,Operating Systems Lab,CE,4,2,lab
+CE125,Computer Networks,CE,5,4,theory
+CE126,Theory of Computation,CE,5,4,theory
+CE127,Software Engineering,CE,5,4,theory
+CE128,Machine Learning,CE,5,4,theory
+CE129,Networks Lab,CE,5,2,lab
+CE130,Machine Learning Lab,CE,5,2,lab
+CE131,Compiler Design,CE,6,4,theory
+CE132,Distributed Systems,CE,6,4,theory
+CE133,Cloud Computing,CE,6,4,theory
+CE134,Deep Learning,CE,6,4,theory
+CE135,Compiler Lab,CE,6,2,lab
+CE136,Mini Project,CE,6,2,lab
+CE137,Information Security,CE,7,4,theory
+CE138,Big Data Analytics,CE,7,4,theory
+CE139,Computer Vision,CE,7,4,theory
+CE140,Natural Language Processing,CE,7,4,theory
+CE141,Security Lab,CE,7,2,lab
+CE142,Project Stage I,CE,7,2,lab
+CE143,Reinforcement Learning,CE,8,4,theory
+CE144,MLOps Practices,CE,8,4,theory
+CE145,Professional Ethics,CE,8,4,theory
+CE146,Startup Management,CE,8,4,theory
+CE147,Major Project,CE,8,2,lab
+CE148,Industry Internship,CE,8,2,lab
+IT149,Discrete Mathematics,IT,3,4,theory
+IT150,Data Structures,IT,3,4,theory
+IT151,Digital Logic,IT,3,4,theory
+IT152,Object Oriented Programming,IT,3,4,theory
+IT153,Data Structures Lab,IT,3,2,lab
+IT154,OOP Lab,IT,3,2,lab
+IT155,Database Management Systems,IT,4,4,theory
+IT156,Operating Systems,IT,4,4,theory
+IT157,Design and Analysis of Algorithms,IT,4,4,theory
+IT158,Web Technologies,IT,4,4,theory
+IT159,DBMS Lab,IT,4,2,lab
+IT160,Web Technologies Lab,IT,4,2,lab
+IT161,Computer Networks,IT,5,4,theory
+IT162,Software Engineering,IT,5,4,theory
+IT163,Data Science,IT,5,4,theory
+IT164,Information Systems Design,IT,5,4,theory
+IT165,Networks Lab,IT,5,2,lab
+IT166,Data Science Lab,IT,5,2,lab
+IT167,Cloud Computing,IT,6,4,theory
+IT168,Information Security,IT,6,4,theory
+IT169,Mobile Application Development,IT,6,4,theory
+IT170,Deep Learning,IT,6,4,theory
+IT171,Cloud Lab,IT,6,2,lab
+IT172,Mini Project,IT,6,2,lab
+IT173,DevOps and Site Reliability,IT,7,4,theory
+IT174,Big Data Analytics,IT,7,4,theory
+IT175,Natural Language Processing,IT,7,4,theory
+IT176,Blockchain Technology,IT,7,4,theory
+IT177,DevOps Lab,IT,7,2,lab
+IT178,Project Stage I,IT,7,2,lab
+IT179,Reinforcement Learning,IT,8,4,theory
+IT180,Scalable AI Systems,IT,8,4,theory
+IT181,Professional Ethics,IT,8,4,theory
+IT182,Startup Management,IT,8,4,theory
+IT183,Major Project,IT,8,2,lab
+IT184,Industry Internship,IT,8,2,lab
+ENTC185,Signals and Systems,ENTC,3,4,theory
+ENTC186,Analog Circuits,ENTC,3,4,theory
+ENTC187,Digital Electronics,ENTC,3,4,theory
+ENTC188,Network Theory,ENTC,3,4,theory
+ENTC189,Analog Circuits Lab,ENTC,3,2,lab
+ENTC190,Digital Electronics Lab,ENTC,3,2,lab
+ENTC191,Control Systems,ENTC,4,4,theory
+ENTC192,Electromagnetics,ENTC,4,4,theory
+ENTC193,Microcontrollers,ENTC,4,4,theory
+ENTC194,Communication Theory,ENTC,4,4,theory
+ENTC195,Microcontrollers Lab,ENTC,4,2,lab
+ENTC196,Communication Lab,ENTC,4,2,lab
+ENTC197,Digital Signal Processing,ENTC,5,4,theory
+ENTC198,Digital Communication,ENTC,5,4,theory
+ENTC199,Embedded Systems,ENTC,5,4,theory
+ENTC200,Antenna Theory,ENTC,5,4,theory
+ENTC201,DSP Lab,ENTC,5,2,lab
+ENTC202,Embedded Systems Lab,ENTC,5,2,lab
+ENTC203,VLSI Design,ENTC,6,4,theory
+ENTC204,Wireless Communication,ENTC,6,4,theory
+ENTC205,Internet of Things,ENTC,6,4,theory
+ENTC206,Image Processing,ENTC,6,4,theory
+ENTC207,VLSI Lab,ENTC,6,2,lab
+ENTC208,Mini Project,ENTC,6,2,lab
+ENTC209,Optical Communication,ENTC,7,4,theory
+ENTC210,Radar Systems,ENTC,7,4,theory
+ENTC211,Satellite Communication,ENTC,7,4,theory
+ENTC212,Machine Learning for Signals,ENTC,7,4,theory
+ENTC213,Wireless Lab,ENTC,7,2,lab
+ENTC214,Project Stage I,ENTC,7,2,lab
+ENTC215,Mobile Communication,ENTC,8,4,theory
+ENTC216,Robotics and Automation,ENTC,8,4,theory
+ENTC217,Professional Ethics,ENTC,8,4,theory
+ENTC218,Startup Management,ENTC,8,4,theory
+ENTC219,Major Project,ENTC,8,2,lab
+ENTC220,Industry Internship,ENTC,8,2,lab

@@ -1,0 +1,42 @@
+event_id,semester_term,event,start_date,end_date,applies_to
+1,2026-27 Semester I,Commencement of instruction,2026-07-06,2026-07-06,BE
+2,2026-27 Semester I,Commencement of instruction,2026-07-13,2026-07-13,"SE,TE,PG"
+3,2026-27 Semester I,Commencement of instruction,2026-08-03,2026-08-03,FE
+4,2026-27 Semester I,Blood donation camp,2026-08-14,2026-08-14,ALL
+5,2026-27 Semester I,Independence Day (holiday),2026-08-15,2026-08-15,ALL
+6,2026-27 Semester I,In-semester examination (ISE),2026-08-24,2026-08-28,TE
+7,2026-27 Semester I,ISE answer-book assessment and marks entry,2026-08-26,2026-09-03,TE
+8,2026-27 Semester I,Mid-semester feedback collection,2026-08-31,2026-09-04,"SE,TE,PG,BE"
+9,2026-27 Semester I,Open house for ISE answer books,2026-09-07,2026-09-07,TE
+10,2026-27 Semester I,ISE result declaration,2026-09-11,2026-09-11,TE
+11,2026-27 Semester I,Annual faculty gathering,2026-09-12,2026-09-12,ALL
+12,2026-27 Semester I,Ganesh Chaturthi (holiday),2026-09-14,2026-09-14,ALL
+13,2026-27 Semester I,Anant Chaturdashi (holiday),2026-09-25,2026-09-25,ALL
+14,2026-27 Semester I,Gandhi Jayanti (holiday),2026-10-02,2026-10-02,ALL
+15,2026-27 Semester I,Debate society event,2026-10-09,2026-10-10,ALL
+16,2026-27 Semester I,Academic council meeting,2026-10-10,2026-10-10,STAFF
+17,2026-27 Semester I,In-semester examination (ISE),2026-10-12,2026-10-16,"SE,PG"
+18,2026-27 Semester I,ISE answer-book assessment and marks entry,2026-10-14,2026-10-24,"SE,PG"
+19,2026-27 Semester I,End-semester feedback and course exit survey,2026-10-19,2026-10-23,"SE,TE,PG,BE"
+20,2026-27 Semester I,Dasara (holiday),2026-10-20,2026-10-20,ALL
+21,2026-27 Semester I,Entrepreneurship fest,2026-10-22,2026-10-24,ALL
+22,2026-27 Semester I,Parent meet,2026-10-24,2026-10-24,"SE,TE,PG,BE"
+23,2026-27 Semester I,Continuous internal evaluation marks compilation,2026-10-26,2026-11-03,"SE,TE,PG"
+24,2026-27 Semester I,Open house for ISE answer books,2026-10-29,2026-10-29,"SE,PG"
+25,2026-27 Semester I,Model UN conclave,2026-10-30,2026-10-31,ALL
+26,2026-27 Semester I,Term work compilation,2026-11-04,2026-11-05,"SE,TE,PG,BE"
+27,2026-27 Semester I,Conclusion of instruction,2026-11-05,2026-11-05,"SE,TE,PG"
+28,2026-27 Semester I,Conclusion of instruction,2026-11-07,2026-11-07,BE
+29,2026-27 Semester I,Diwali holidays,2026-11-09,2026-11-11,ALL
+30,2026-27 Semester I,"Practical, oral, seminar and dissertation examinations",2026-11-16,2026-11-28,"SE,TE,PG"
+31,2026-27 Semester I,Internal marks display,2026-11-21,2026-11-21,"SE,TE,PG"
+32,2026-27 Semester I,Guru Nanak Jayanti (holiday),2026-11-24,2026-11-24,ALL
+33,2026-27 Semester I,End-semester examination (ESE),2026-12-02,2026-12-12,TE
+34,2026-27 Semester I,End-semester examination (ESE),2026-12-03,2026-12-18,"SE,PG"
+35,2026-27 Semester I,ESE answer-book assessment,2026-12-04,2026-12-19,TE
+36,2026-27 Semester I,ESE answer-book assessment,2026-12-07,2026-12-24,"SE,PG"
+37,2026-27 Semester I,Winter vacation and internship window,2026-12-14,2027-01-09,"SE,TE,PG"
+38,2026-27 Semester I,Christmas (holiday),2026-12-25,2026-12-25,ALL
+39,2026-27 Semester I,Open house for ESE answer books,2026-12-30,2026-12-30,"SE,TE,PG"
+40,2026-27 Semester I,Commencement of semester II,2027-01-11,2027-01-11,"SE,TE,PG"
+41,2026-27 Semester I,ESE result declaration,2027-01-15,2027-01-15,"SE,TE,PG"

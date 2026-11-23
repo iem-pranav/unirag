@@ -1,0 +1,9 @@
+grant_id,grant_name,sponsor,max_amount_inr,grant_type
+1,Undergraduate Research Seed Grant,AIT R&D Cell,50000,research
+2,Student Innovation Project Grant,AIT Entrepreneurship Cell,75000,project
+3,Conference Travel Grant,AIT R&D Cell,40000,travel
+4,AI and Data Research Fellowship,Nimbus Labs (industry sponsor),120000,research
+5,Women in Tech Research Grant,AIT Alumni Association,60000,research
+6,Embedded and Wireless Research Grant,AIT Electronics Department,60000,research
+7,Final-Year Project Funding,AIT Academic Office,30000,project
+8,Summer Research Internship Stipend,AIT R&D Cell,25000,internship

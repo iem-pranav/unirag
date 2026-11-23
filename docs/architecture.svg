@@ -1,0 +1,92 @@
+<svg viewBox="0 0 1000 850" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="850" fill="#ffffff"/>
+
+  <text x="500" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">UniRAG: Unified Hybrid RAG Architecture</text>
+
+  <!-- Row 1: entry -->
+  <rect x="40" y="60" width="150" height="50" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="115" y="90" text-anchor="middle" font-size="14" fill="#0f172a">User question</text>
+  <rect x="240" y="60" width="170" height="50" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="325" y="90" text-anchor="middle" font-size="14" fill="#0f172a">Chat UI + role picker</text>
+  <rect x="460" y="60" width="200" height="50" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="560" y="90" text-anchor="middle" font-size="14" fill="#0f172a">FastAPI  /chat</text>
+  <line x1="190" y1="85" x2="238" y2="85" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="410" y1="85" x2="458" y2="85" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Router -->
+  <rect x="360" y="150" width="300" height="64" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="510" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#78350f">Router</text>
+  <text x="510" y="196" text-anchor="middle" font-size="12" fill="#78350f">decides: sql | docs | both + sub-questions</text>
+  <path d="M560 110 L560 130 L510 130 L510 148" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Path labels -->
+  <text x="60" y="244" text-anchor="start" font-size="13" font-weight="700" fill="#1d4ed8">STRUCTURED PATH</text>
+  <text x="940" y="244" text-anchor="end" font-size="13" font-weight="700" fill="#047857">UNSTRUCTURED PATH</text>
+  <path d="M400 214 L400 228 L230 228 L230 256" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M620 214 L620 228 L770 228 L770 256" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SQL path -->
+  <rect x="60" y="260" width="340" height="52" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="230" y="282" text-anchor="middle" font-size="14" font-weight="700" fill="#1e3a8a">Schema retriever</text>
+  <text x="230" y="300" text-anchor="middle" font-size="12" fill="#1e3a8a">finds relevant tables + column descriptions</text>
+  <rect x="60" y="334" width="340" height="52" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="230" y="356" text-anchor="middle" font-size="14" font-weight="700" fill="#1e3a8a">Text-to-SQL (LLM)</text>
+  <text x="230" y="374" text-anchor="middle" font-size="12" fill="#1e3a8a">question + schema + few-shot examples</text>
+  <rect x="60" y="408" width="340" height="52" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="230" y="430" text-anchor="middle" font-size="14" font-weight="700" fill="#1e3a8a">SQL guard</text>
+  <text x="230" y="448" text-anchor="middle" font-size="12" fill="#1e3a8a">SELECT-only, table allowlist, LIMIT, timeout</text>
+  <line x1="230" y1="312" x2="230" y2="332" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="230" y1="386" x2="230" y2="406" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="230" y1="460" x2="230" y2="486" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Postgres tables -->
+  <path d="M90 500 v50 a140 12 0 0 0 280 0 v-50" fill="#bfdbfe" stroke="#2563eb"/>
+  <ellipse cx="230" cy="500" rx="140" ry="12" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="230" y="528" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a">PostgreSQL tables</text>
+  <text x="230" y="545" text-anchor="middle" font-size="11" fill="#1e3a8a">students, courses, fees, grants</text>
+
+  <!-- Docs path -->
+  <rect x="600" y="260" width="340" height="52" rx="8" fill="#d1fae5" stroke="#059669"/>
+  <text x="770" y="282" text-anchor="middle" font-size="14" font-weight="700" fill="#064e3b">Query rewrite / HyDE</text>
+  <text x="770" y="300" text-anchor="middle" font-size="12" fill="#064e3b">turns the question into a better search query</text>
+  <rect x="600" y="334" width="340" height="52" rx="8" fill="#d1fae5" stroke="#059669"/>
+  <text x="770" y="356" text-anchor="middle" font-size="14" font-weight="700" fill="#064e3b">Hybrid search</text>
+  <text x="770" y="374" text-anchor="middle" font-size="12" fill="#064e3b">vector + keyword, with metadata filters</text>
+  <rect x="600" y="408" width="340" height="52" rx="8" fill="#d1fae5" stroke="#059669"/>
+  <text x="770" y="430" text-anchor="middle" font-size="14" font-weight="700" fill="#064e3b">Rerank top-k</text>
+  <text x="770" y="448" text-anchor="middle" font-size="12" fill="#064e3b">keeps the best chunks, with source + page</text>
+  <line x1="770" y1="312" x2="770" y2="332" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="770" y1="386" x2="770" y2="406" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="770" y1="460" x2="770" y2="486" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- pgvector -->
+  <path d="M630 500 v50 a140 12 0 0 0 280 0 v-50" fill="#a7f3d0" stroke="#059669"/>
+  <ellipse cx="770" cy="500" rx="140" ry="12" fill="#d1fae5" stroke="#059669"/>
+  <text x="770" y="528" text-anchor="middle" font-size="13" font-weight="700" fill="#064e3b">pgvector chunks</text>
+  <text x="770" y="545" text-anchor="middle" font-size="11" fill="#064e3b">same Postgres, separate table</text>
+
+  <!-- Synthesizer -->
+  <rect x="320" y="600" width="360" height="76" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="500" y="626" text-anchor="middle" font-size="15" font-weight="700" fill="#4c1d95">Synthesizer</text>
+  <text x="500" y="645" text-anchor="middle" font-size="12" fill="#4c1d95">merges rows + text chunks, keeps numbers exact</text>
+  <text x="500" y="662" text-anchor="middle" font-size="12" fill="#4c1d95">LLM: Groq first, Gemini as fallback</text>
+  <path d="M230 560 L230 638 L318 638" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M770 560 L770 638 L682 638" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="500" y="700" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Answer + citations (SQL rows and document pages)</text>
+  <line x1="500" y1="676" x2="500" y2="688" stroke="#475569" stroke-width="1.5"/>
+
+  <!-- Ingestion band -->
+  <rect x="40" y="725" width="920" height="46" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-dasharray="6 4"/>
+  <text x="500" y="745" text-anchor="middle" font-size="13" font-weight="700" fill="#7c2d12">Offline ingestion</text>
+  <text x="500" y="762" text-anchor="middle" font-size="12" fill="#7c2d12">Docs: parse, chunk, embed (bge-small) into pgvector   |   Tables: seed into Postgres + write table/column descriptions</text>
+  <path d="M40 748 L22 748 L22 520 L88 520" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <path d="M960 748 L978 748 L978 520 L912 520" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+
+  <!-- MLOps band -->
+  <rect x="40" y="785" width="920" height="46" rx="8" fill="#f1f5f9" stroke="#475569" stroke-dasharray="6 4"/>
+  <text x="500" y="805" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">MLOps layer</text>
+  <text x="500" y="822" text-anchor="middle" font-size="12" fill="#0f172a">Eval harness (routing, SQL, retrieval, faithfulness) | MLflow tracking | Docker Compose | GitHub Actions CI</text>
+</svg>

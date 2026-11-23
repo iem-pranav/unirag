@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets
+.env
+
+# Local services and outputs
+mlruns/
+*.log
+pgdata/
+.DS_Store
+.idea/
+.vscode/
