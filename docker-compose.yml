@@ -1,0 +1,24 @@
+# * Local services. Phase 0: only Postgres 16 with pgvector.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      # * Admin user: owns the tables and loads the data.
+      POSTGRES_USER: ${POSTGRES_USER:?set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set in .env}
+      # * Password for the read-only app user (created by the init script).
+      UNIRAG_RO_PASSWORD: ${UNIRAG_RO_PASSWORD:?set in .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

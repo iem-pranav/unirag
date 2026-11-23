@@ -7,7 +7,10 @@ Rules for working on UniRAG. Read `README.md` first. It is the plan.
 - **Phase by phase.** Follow the roadmap in `README.md`. Do one phase, then stop and show what was done. Do not start the next phase until I say so.
 - **Eval comes first.** Do not skip Phase 2. Every later phase must be measured with the eval set.
 - **Ask before big choices.** If something is unclear or the README does not cover it, ask a short question instead of guessing.
-- **Do not commit or push** unless I ask.
+- Make exactly one commit at the end of each phase, after tests pass and the README box is ticked.
+- Commit message format: "Phase N: <short title>" plus 2 to 4 plain bullet lines on what changed.
+- Never commit .env or any secret. Run git status first and check.
+- Do not push. I will push myself.
 - When a phase is done, tick its box in the README roadmap.
 
 ## Keep the code simple

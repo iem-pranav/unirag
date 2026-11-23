@@ -1,0 +1,44 @@
+# * CI: lint with ruff, then run pytest against a real Postgres + pgvector.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: unirag_admin
+          POSTGRES_PASSWORD: ci_admin
+          POSTGRES_DB: unirag
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U unirag_admin -d unirag"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://unirag_ro:ci_ro@localhost:5432/unirag
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      # * Service containers can't mount repo files, so run the same init script from here.
+      - name: Create read-only user
+        run: bash docker/postgres-init.sh
+        env:
+          PGHOST: localhost
+          PGPASSWORD: ci_admin
+          POSTGRES_USER: unirag_admin
+          POSTGRES_DB: unirag
+          UNIRAG_RO_PASSWORD: ci_ro
+      - run: pytest
