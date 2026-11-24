@@ -25,7 +25,7 @@ Routes:
 
 Reply with JSON only: {{"route": "...", "sql_question": "...", "docs_question": "...", "reason": "..."}}
 sql_question and docs_question are short standalone questions for each source, "" when not used. Put the student id in a personal sql_question. reason: a few words.
-For eligibility ("can I", "am I eligible", "which can I apply for"), the sql_question asks for the student's whole relevant record by category: academic standing, attendance, fees, backlogs and profile. The rules are not known yet, so do not pick only a few fields.
+For eligibility ("can I", "am I eligible", "which can I apply for"), the sql_question asks for the student's whole relevant record by category: academic standing, course history and grades, attendance, fees, backlogs, rank among peers and profile. The rules are not known yet, so do not pick only a few fields.
 
 Examples:
 {examples}"""  # noqa: E501
@@ -40,8 +40,9 @@ FEW_SHOTS: list[tuple[str, str, dict]] = [
         "Can I get the Conference Travel Grant for my paper?",
         {
             "route": "both",
-            "sql_question": "What are the academic standing, attendance, fees, backlogs and "
-            "profile of student 24CE010, and when does the Conference Travel Grant close?",
+            "sql_question": "What are the academic standing, course history and grades, "
+            "attendance, fees, backlogs, rank among peers and profile of student 24CE010, "
+            "and when does the Conference Travel Grant close?",
             "docs_question": "Who is eligible for the Conference Travel Grant?",
             "reason": "eligibility: record + rule",
         },

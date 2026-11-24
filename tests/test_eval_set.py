@@ -51,7 +51,7 @@ def test_ids_are_unique() -> None:
 
 @pytest.mark.parametrize("q", QUESTION_LIST, ids=lambda q: q["id"])
 def test_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
-    assert set(q) - {"retrieval_facts", "expected_status"} == KEYS
+    assert set(q) - {"retrieval_facts", "expected_status", "note"} == KEYS
     assert q.get("expected_status", "answered") in {"answered", "not_found", "refused"}
     assert q["question"].strip()
     if "retrieval_facts" in q:

@@ -30,6 +30,8 @@ Rules:
 - {role_rule}
 - Year groups: FE = first year, SE = second, TE = third, BE = final year.
 - Select only the columns needed for the answer. Prefer names and titles over internal IDs.
+- Aggregate each one-to-many table (enrollments, fee_ledger) in its own subquery. Never join them together before summing. Keep fees per fee_type.
+- For rank questions, use the student_branch_rank view if it is listed below.
 - If the tables cannot answer the question, reply with exactly {cannot}.
 - Reply with only the SQL inside a ```sql block.
 
@@ -37,7 +39,7 @@ Tables:
 {schema}
 
 Examples:
-{examples}"""
+{examples}"""  # noqa: E501
 
 STUDENT_RULE = (
     "The user is student {student_id}. 'I', 'my' and 'me' mean this student, "
