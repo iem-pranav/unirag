@@ -1,6 +1,6 @@
 # * SQL execution accuracy: run text-to-SQL on every gold_sql question, compare rows with gold.
 # * Calls the real LLM, so it is not part of pytest.
-# * Run: python eval/sql_eval.py [ids...] [--cache off|record|replay]
+# * Run: python eval/sql_eval.py [ids...] [--cache off|record|replay] [--mlflow]
 import sys
 from collections import defaultdict
 
@@ -14,12 +14,13 @@ from eval_set import (
     sql_part_ok,
     stop_on_daily_limit,
 )
+from tracking import log_run, take_flag
 
 from unirag.db import connect
 from unirag.structured.text_to_sql import answer_sql
 
 
-def main(only: set[str]) -> None:
+def main(only: set[str], track: bool = False) -> None:
     gold = {g["id"]: g for g in load_jsonl(GOLD)}
     questions = [q for q in load_jsonl(QUESTIONS) if q["gold_sql"]]
     # * Optional ids on the command line run just those, e.g. python eval/sql_eval.py s06
@@ -54,10 +55,16 @@ def main(only: set[str]) -> None:
                 failures.append((q, result.sql, why, gold[q["id"]]["rows"]))
 
     print(f"\n{'question_type':<16}{'SQL accuracy':<16}infra errors")
+    metrics: dict[str, float] = {}
     for qtype, results in [*by_type.items(), ("ALL", [r for v in by_type.values() for r in v])]:
         scored = [r for r in results if r is not None]
         acc = f"{sum(scored)}/{len(scored)} ({sum(scored) / len(scored):.0%})" if scored else "n/a"
         print(f"{qtype:<16}{acc:<16}{results.count(None)}")
+        if scored:
+            metrics[f"sql_accuracy_{qtype}"] = sum(scored) / len(scored)
+        metrics[f"infra_{qtype}"] = results.count(None)
+    if track:
+        log_run("sql", metrics, {"questions": len(questions)})
 
     print(f"\nFailures ({len(failures)}):")
     for q, sql, why, expected in failures:
@@ -68,4 +75,5 @@ def main(only: set[str]) -> None:
 
 
 if __name__ == "__main__":
-    main(set(setup_llm(sys.argv[1:])))
+    track, args = take_flag(setup_llm(sys.argv[1:]))
+    main(set(args), track)

@@ -1,4 +1,7 @@
 # * HTTP API: POST /chat runs one question through the pipeline. Run: uvicorn unirag.api.app:app
+import json
+import time
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -57,7 +60,9 @@ def chat(request: ChatRequest) -> ChatResponse:
     if not role_exists(request.role):
         raise HTTPException(status_code=422, detail=f"Unknown role: {request.role}")
     # * Called through the module, so tests can swap in a fake pipeline.answer.
+    start = time.perf_counter()
     a = pipeline.answer(request.question, request.role)
+    log_request(request, a, time.perf_counter() - start)
     return ChatResponse(
         text=a.text,
         status=a.status,
@@ -70,3 +75,24 @@ def chat(request: ChatRequest) -> ChatResponse:
         latency_s=a.latency_s,
         tokens=a.tokens,
     )
+
+
+def log_request(request: ChatRequest, a: pipeline.Answer, secs: float) -> None:
+    # * One JSON line per request on stdout: Docker and log collectors pick it up as is.
+    # * Data is synthetic, so the question and student id are safe to log.
+    record = {
+        "ts": datetime.now(UTC).isoformat(timespec="seconds"),
+        "role": request.role,
+        "question": request.question,
+        "route": a.route,
+        "status": a.status,
+        "sql": a.sql,
+        "rows": len(a.rows),
+        "chunks": [f"{h.document} > {h.heading}" for h in a.chunks],
+        "missing": a.missing,
+        "latency_s": {**a.latency_s, "request": round(secs, 2)},
+        "tokens": a.tokens,
+        "infra_error": a.infra_error,
+        "infra_detail": a.infra_detail,
+    }
+    print(json.dumps(record, ensure_ascii=False), flush=True)

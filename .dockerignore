@@ -1,0 +1,9 @@
+# ! Secrets and local state never go into the build context.
+.env
+.git
+.venv
+.cache
+mlruns
+.pytest_cache
+.ruff_cache
+**/__pycache__

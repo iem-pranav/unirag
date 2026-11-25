@@ -43,9 +43,16 @@ eval:
   # ! Groq free tier: 8000 tokens/min, and one text-to-SQL call is ~2.4k. Space calls out.
   pause_s: 20         # min seconds between live LLM calls in eval commands
   network_retry_s: 30 # eval: wait this long, then retry once when both providers fail
+  # ! CI gate: the offline semantic router must keep at least this routing accuracy.
+  # * Measured 49/80 (61%) on 2026-11-25; the margin absorbs tiny CPU float differences.
+  ci_min_routing_accuracy: 0.55
+
+mlflow:
+  # * Eval runs log here only with --mlflow. The MLFLOW_TRACKING_URI env var wins (Compose server).
+  dir: mlruns
 
 api:
-  url: http://localhost:8000  # where the Streamlit UI finds the API
+  url: http://localhost:8000  # where the Streamlit UI finds the API (env API_URL wins)
 
 # * Role picker in the UI. Each id must exist in students (tests/test_api.py checks this).
 demo_students:

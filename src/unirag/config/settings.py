@@ -32,6 +32,8 @@ class Settings:
     number_tolerance: float
     eval_pause_s: float
     eval_network_retry_s: float
+    ci_min_routing_accuracy: float
+    mlflow_tracking_uri: str
     api_url: str
     demo_students: list[dict]
     database_url: str
@@ -64,7 +66,11 @@ def get_settings() -> Settings:
         number_tolerance=raw["eval"]["number_tolerance"],
         eval_pause_s=raw["eval"]["pause_s"],
         eval_network_retry_s=raw["eval"]["network_retry_s"],
-        api_url=raw["api"]["url"],
+        ci_min_routing_accuracy=raw["eval"]["ci_min_routing_accuracy"],
+        mlflow_tracking_uri=os.environ.get("MLFLOW_TRACKING_URI")
+        or (ROOT / raw["mlflow"]["dir"]).as_uri(),
+        # * Docker Compose points the UI at the api service with API_URL.
+        api_url=os.environ.get("API_URL", raw["api"]["url"]),
         demo_students=raw["demo_students"],
         database_url=os.environ["DATABASE_URL"],
         admin_database_url=os.environ.get("ADMIN_DATABASE_URL"),

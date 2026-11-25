@@ -20,6 +20,8 @@ dependencies = [
 dev = [
     "pytest==9.2.0",
     "ruff==0.17.6",
+    # * Eval tracking only (eval/tracking.py); the app image does not need it.
+    "mlflow-skinny==3.18.0",
 ]
 
 [build-system]

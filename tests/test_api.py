@@ -1,4 +1,5 @@
 # * API tests with a fake pipeline.answer: no LLM calls. The role check uses the real DB.
+import json
 from datetime import date
 from decimal import Decimal
 
@@ -46,6 +47,17 @@ def test_chat_returns_the_answer_with_sources_and_details(fake_answer) -> None:
     # * Decimals come out as exact strings (no float rounding), dates as ISO text.
     assert body["rows"] == [["8.65", "2026-11-23"]]
     assert fake_answer == [("What is my CGPA?", "23ENTC008")]
+
+
+def test_each_request_logs_one_json_line(fake_answer, capsys) -> None:
+    client.post("/chat", json={"question": "What is my CGPA?", "role": "23ENTC008"})
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert len(lines) == 1
+    record = json.loads(lines[0])
+    assert record["role"] == "23ENTC008" and record["route"] == "sql"
+    assert record["sql"].startswith("SELECT") and record["rows"] == 1
+    assert record["tokens"] == {"router": 700}
+    assert "request" in record["latency_s"]
 
 
 def test_refusal_is_a_normal_reply(fake_answer) -> None:

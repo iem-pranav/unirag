@@ -1,13 +1,16 @@
 # * Routing eval: score the semantic and LLM routers on the main and routing-only questions.
 # * The LLM router makes real calls, so it is not part of pytest.
-# * Run: python eval/routing_eval.py [semantic|llm] [ids...] [--cache off|record|replay]
+# * Run: python eval/routing_eval.py [semantic|llm] [ids...] [--cache MODE] [--mlflow] [--gate]
+# * --gate: exit 1 if accuracy is below eval.ci_min_routing_accuracy (CI, semantic router).
 # * No router named = both. No ids = all questions.
 import sys
 import time
 from collections import Counter
 
 from eval_set import QUESTIONS, ROUTING_QUESTIONS, load_jsonl, setup_llm, short, stop_on_daily_limit
+from tracking import log_run, take_flag
 
+from unirag.config.settings import get_settings
 from unirag.router.llm_router import route_llm
 from unirag.router.semantic import route_semantic
 
@@ -19,7 +22,7 @@ def pct(hits: int, total: int) -> str:
     return f"{hits}/{total} ({hits / total:.0%})" if total else "n/a"
 
 
-def evaluate(name: str, questions: list[dict]) -> None:
+def evaluate(name: str, questions: list[dict]) -> dict[str, float]:
     router = ROUTERS[name]
     if name == "semantic":
         router("warm up the embedding model", "guest")
@@ -63,9 +66,28 @@ def evaluate(name: str, questions: list[dict]) -> None:
         print(f"       expected {q['expected_route']}, got {d.route}: {d.reason}")
     for q, d in infra:
         print(f"  INFRA {q['id']}: {short(d.reason)}")
+    return {
+        f"{name}_accuracy": sum(ok) / len(ok) if ok else 0.0,
+        f"{name}_guest_accuracy": sum(guest) / len(guest) if guest else 0.0,
+        f"{name}_student_accuracy": sum(student) / len(student) if student else 0.0,
+        f"{name}_infra": len(infra),
+        f"{name}_latency_avg_s": sum(secs) / len(secs),
+        f"{name}_tokens_avg": sum(tokens) / len(tokens),
+    }
+
+
+def gate(accuracy: float, minimum: float) -> None:
+    # ! CI fails here when a change makes routing worse than the agreed floor.
+    if accuracy < minimum:
+        print(f"GATE FAILED: routing accuracy {accuracy:.1%} is below {minimum:.0%}")
+        raise SystemExit(1)
+    print(f"GATE OK: routing accuracy {accuracy:.1%} (minimum {minimum:.0%})")
 
 
 def main(args: list[str]) -> None:
+    track, args = take_flag(args)
+    check = "--gate" in args
+    args = [a for a in args if a != "--gate"]
     names = [a for a in args if a in ROUTERS] or list(ROUTERS)
     ids = {a for a in args if a not in ROUTERS}
     keys = ("id", "question", "role", "expected_route")
@@ -73,8 +95,15 @@ def main(args: list[str]) -> None:
     questions += load_jsonl(ROUTING_QUESTIONS)
     questions = [q for q in questions if not ids or q["id"] in ids]
     print(f"{len(questions)} questions")
+    metrics: dict[str, float] = {}
     for name in names:
-        evaluate(name, questions)
+        metrics |= evaluate(name, questions)
+    if track:
+        log_run("routing", metrics, {"routers": ",".join(names), "questions": len(questions)})
+    if check:
+        minimum = get_settings().ci_min_routing_accuracy
+        for name in names:
+            gate(metrics[f"{name}_accuracy"], minimum)
 
 
 if __name__ == "__main__":

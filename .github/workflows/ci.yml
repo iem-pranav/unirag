@@ -47,3 +47,6 @@ jobs:
       # * Downloads the embedding model (~70 MB) on first run.
       - run: python -m unirag.ingest
       - run: pytest
+      # ! Eval gate: offline semantic router, no LLM keys needed. Floor in config/settings.yaml.
+      - name: Routing eval gate
+        run: python eval/routing_eval.py semantic --gate

@@ -1,5 +1,5 @@
 # * End-to-end eval: every main question through pipeline.answer(), scored step by step.
-# * Real LLM calls. Run: python eval/run_eval.py [ids...] [--cache off|record|replay]
+# * Real LLM calls. Run: python eval/run_eval.py [ids...] [--cache off|record|replay] [--mlflow]
 import sys
 from collections import defaultdict
 
@@ -15,6 +15,7 @@ from eval_set import (
     stop_on_daily_limit,
 )
 from retrieval_eval import is_hit, retrieval_facts
+from tracking import log_run, take_flag
 
 from unirag.pipeline import answer
 
@@ -76,7 +77,7 @@ def cell(results: list[bool | None]) -> str:
     return f"{sum(scored)}/{len(scored)}" if scored else "-"
 
 
-def main(only: set[str]) -> None:
+def main(only: set[str], track: bool = False) -> None:
     gold = {g["id"]: g for g in load_jsonl(GOLD)}
     questions = [q for q in load_jsonl(QUESTIONS) if not only or q["id"] in only]
     by_type: dict[str, list[dict]] = defaultdict(list)
@@ -120,6 +121,9 @@ def main(only: set[str]) -> None:
         avg_t = f"{sum(t) / len(t):.0f}" if t else "-"
         avg_s = f"{sum(s) / len(s):.2f}" if s else "-"
         print(f"  {step:<14}{avg_t:>8}{avg_s:>11}")
+    totals = latency.get("total", [])
+    p50, p95 = percentile(totals, 50), percentile(totals, 95)
+    print(f"\nanswer latency    p50 {p50:.2f}s   p95 {p95:.2f}s")
 
     print(f"\nFailures ({len(failures)}):")
     for q, a, notes in failures:
@@ -133,6 +137,26 @@ def main(only: set[str]) -> None:
         for detail in a.infra_detail:
             print(f"  - {short(detail)}")
 
+    if track:
+        scored = [r for r in rows[-1][1] if "infra" not in r]
+        metrics = {"infra": len(infra), "latency_p50_s": p50, "latency_p95_s": p95}
+        for c in COLUMNS:
+            checks = [r[c] for r in scored if r[c] is not None]
+            if checks:
+                metrics[c] = sum(checks) / len(checks)
+        for step, t in tokens.items():
+            metrics[f"tokens_avg_{step}"] = sum(t) / len(t)
+        log_run("end_to_end", metrics, {"questions": len(questions)})
+
+
+def percentile(values: list[float], p: int) -> float:
+    # * Nearest-rank percentile; 0 when there is nothing to measure.
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    return ordered[-(-p * len(ordered) // 100) - 1]
+
 
 if __name__ == "__main__":
-    main(set(setup_llm(sys.argv[1:])))
+    track, args = take_flag(setup_llm(sys.argv[1:]))
+    main(set(args), track)

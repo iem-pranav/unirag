@@ -212,40 +212,53 @@ unirag/
 
 ---
 
-## 11. Quickstart (target, not working yet)
+## 11. Quickstart
 
 ```bash
 git clone https://github.com/<your-username>/unirag.git
 cd unirag
-cp .env.example .env          # add GROQ_API_KEY and GEMINI_API_KEY
-docker compose up --build     # Postgres, API, UI, MLflow
-python -m unirag.ingest       # load synthetic data and documents
-python eval/run_eval.py       # run the evaluation
+cp .env.example .env                       # add GROQ_API_KEY and GEMINI_API_KEY
+docker compose up -d db                    # Postgres + pgvector
+python -m unirag.load_data                 # tables, row-level security
+python -m unirag.ingest                    # document chunks and embeddings
+docker compose up --build api ui mlflow    # API, UI, MLflow server
 ```
 
 UI: `http://localhost:8501` · API docs: `http://localhost:8000/docs` · MLflow: `http://localhost:5000`
 
-**Run locally today** (API and UI are not in Docker Compose until Phase 8):
+The API prints one JSON line per request (route, SQL, chunks, latency and tokens per step): `docker compose logs -f api`.
+
+**Without Docker** for the API and UI:
 
 ```bash
-docker compose up -d                       # Postgres + pgvector only
-python -m unirag.load_data                 # tables, row-level security
-python -m unirag.ingest                    # document chunks and embeddings
 uvicorn unirag.api.app:app --port 8000     # API: POST /chat, GET /roles, docs at /docs
 streamlit run ui/app.py                    # chat UI with the role picker
 ```
+
+**Evaluation** (real LLM calls; `--cache record` saves replies, `--cache replay` re-scores for free):
+
+```bash
+python eval/run_eval.py --cache record     # end to end: routing, SQL, retrieval, facts, status
+python eval/routing_eval.py                # semantic and LLM routers
+python eval/sql_eval.py                    # text-to-SQL execution accuracy
+```
+
+Add `--mlflow` to log a run (config, prompt fingerprints, metrics) to `./mlruns`, or to the Compose server with `MLFLOW_TRACKING_URI=http://localhost:5000`.
+CI runs lint, tests and an offline routing gate: `python eval/routing_eval.py semantic --gate` fails below `eval.ci_min_routing_accuracy`.
 
 ---
 
 ## 12. Results
 
-*To be filled after Phase 8.*
+Eval set: 30 main questions (SQL, documents, joint, not answerable, guest refusal) plus 50 routing-only questions. Today = 2026-11-23 in the fake world.
 
-| Version | Routing acc. | SQL exec acc. | Recall@5 | Numeric exact | Faithfulness | p95 latency |
-|---|---|---|---|---|---|---|
-| baseline | | | | | | |
-| + LLM router | | | | | | |
-| + rerank | | | | | | |
+| Router | Routing acc. (80 q) | SQL exec acc. | Retrieval recall@5 | Exact facts | Right status | p95 latency | Tokens / question |
+|---|---|---|---|---|---|---|---|
+| Semantic (offline baseline, CI gate) | 49/80 (61%) | – | – | – | – | – | 0 |
+| LLM router (pipeline default) | pending | pending | pending | pending | pending | pending | pending |
+
+*Pending: the end-to-end, routing and SQL evals are being re-recorded after the Phase 6 prompt fixes.*
+Not measured: faithfulness (needs an LLM judge) and reranking (not built); both are future work.
 
 ---
 
