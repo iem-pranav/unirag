@@ -5,6 +5,7 @@ from eval_set import (
     GOLD,
     QUESTIONS,
     ROUTING_QUESTIONS,
+    cell_to_text,
     fact_in_answer,
     load_jsonl,
     rows_match,
@@ -95,8 +96,12 @@ def test_routing_question_is_valid(q: dict, conn: psycopg.Connection) -> None:
 def test_gold_sql_runs_and_matches_gold_file(q: dict, conn: psycopg.Connection) -> None:
     rows = run_gold(conn, q)
     assert rows, "gold_sql returned no rows"
-    gold = {g["id"]: g for g in load_jsonl(GOLD)}
-    assert gold[q["id"]]["facts"] == rows_to_facts(rows), "gold.jsonl is stale, run build_gold.py"
+    gold = {g["id"]: g for g in load_jsonl(GOLD)}[q["id"]]
+    # ! Row order is up to the query planner (it changes after ANALYZE) and no scoring uses it,
+    # ! so compare whole rows as a multiset. Content must still match exactly.
+    got = sorted([cell_to_text(v) for v in row] for row in rows)
+    assert sorted(gold["rows"]) == got, "gold.jsonl is stale, run build_gold.py"
+    assert sorted(gold["facts"]) == sorted(rows_to_facts(rows)), "gold facts are stale"
 
 
 @pytest.mark.parametrize(
